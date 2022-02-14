@@ -17,8 +17,8 @@
 
 typedef struct __attribute__((packed)) {
 	char magic[6];
-	int size;
-	int type;
+	int32_t size;
+	int32_t type;
 } i3_incoming_message_header;
 
 extern void
@@ -93,13 +93,14 @@ i3_connect(int *sockfd) {
 }
 
 static void
-i3_send(int sockfd, int type, const char *payload) {
+i3_send(int sockfd, int32_t type, const char *payload) {
 	unsigned char *message;
-	size_t payload_length, message_length;
-	size_t position = 0;
+	int32_t payload_length;
+	size_t message_length, position;
 
-	payload_length = strlen(payload);
-	message_length = I3_MAGIC_LENGTH + sizeof(int) * 2 + payload_length;
+	position = 0;
+	payload_length = (int32_t)(strlen(payload));
+	message_length = I3_MAGIC_LENGTH + sizeof(int32_t) * 2 + payload_length;
 
 	if ((message = malloc(message_length)) == NULL) {
 		die("error while calling malloc()");
@@ -108,11 +109,11 @@ i3_send(int sockfd, int type, const char *payload) {
 	memcpy(message + position, I3_MAGIC, I3_MAGIC_LENGTH);
 	position += I3_MAGIC_LENGTH;
 
-	memcpy(message + position, &payload_length, sizeof(int));
-	position += sizeof(int);
+	memcpy(message + position, &payload_length, sizeof(int32_t));
+	position += sizeof(int32_t);
 
-	memcpy(message + position, &type, sizeof(int));
-	position += sizeof(int);
+	memcpy(message + position, &type, sizeof(int32_t));
+	position += sizeof(int32_t);
 
 	memcpy(message + position, payload, payload_length);
 
