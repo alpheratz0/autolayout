@@ -12,6 +12,7 @@
 #define I3_MAGIC_LENGTH (sizeof(I3_MAGIC) - 1)
 #define I3_MSG_TYPE_COMMAND 0
 #define I3_MSG_TYPE_SUBSCRIBE 2
+#define I3_WINDOW_EVENT 3
 #define I3_EVENT_MASK_BIT (1 << (sizeof(int) * 8 - 1))
 #define SUN_MAX_PATH_LENGTH sizeof(((struct sockaddr_un *)0)->sun_path)
 
@@ -148,94 +149,8 @@ i3_get_incoming_message_header(int sockfd) {
 	return (i3_incoming_message_header *)(header);
 }
 
-static void
-i3_run_command(int sockfd, const char *cmd) {
-	size_t read_count, total_read_count, left_to_read;
-	i3_incoming_message_header *header;
-	unsigned char *message;
-
-	i3_send(sockfd, I3_MSG_TYPE_COMMAND, cmd);
-	header = i3_get_incoming_message_header(sockfd);
-
-	if (strncmp(header->magic, I3_MAGIC, I3_MAGIC_LENGTH) != 0) {
-		die("bad magic string");
-	}
-
-	if (header->type != I3_MSG_TYPE_COMMAND) {
-		die("bad response type");
-	}
-
-	total_read_count = 0;
-	left_to_read = header->size;
-	free(header);
-
-	if ((message = malloc(left_to_read)) == NULL) {
-		die("error while calling malloc()");
-	}
-
-	while (left_to_read > 0) {
-		if ((read_count = read(sockfd, message + total_read_count, left_to_read)) == EOF)
-			break;
-		total_read_count += read_count;
-		left_to_read -= read_count;
-	}
-
-	if (left_to_read > 0) {
-		die("error while reading message, data truncated");
-	}
-
-	if (strncmp((char *)(message), "[{\"success\":true}]", 18) != 0) {
-		die("couldn't run command");
-	}
-
-	free(message);
-}
-
-static void
-i3_subscribe_to_window_events(int sockfd) {
-	size_t read_count, total_read_count, left_to_read;
-	i3_incoming_message_header *header;
-	unsigned char *message;
-
-	i3_send(sockfd, I3_MSG_TYPE_SUBSCRIBE, "[ \"window\" ]");
-	header = i3_get_incoming_message_header(sockfd);
-
-	if (strncmp(header->magic, I3_MAGIC, I3_MAGIC_LENGTH) != 0) {
-		die("bad magic string");
-	}
-
-	if (header->type != I3_MSG_TYPE_SUBSCRIBE) {
-		die("bad response type");
-	}
-
-	total_read_count = 0;
-	left_to_read = header->size;
-	free(header);
-
-	if ((message = malloc(left_to_read)) == NULL) {
-		die("error while calling malloc()");
-	}
-
-	while (left_to_read > 0) {
-		if ((read_count = read(sockfd, message + total_read_count, left_to_read)) == EOF)
-			break;
-		total_read_count += read_count;
-		left_to_read -= read_count;
-	}
-
-	if (left_to_read > 0) {
-		die("error while reading message, data truncated");
-	}
-
-	if (strncmp((char *)(message), "{\"success\":true}", 16) != 0) {
-		die("couldn't subscribe to window events");
-	}
-
-	free(message);
-}
-
-static char *
-i3_get_window_event(int sockfd) {
+static unsigned char *
+i3_get_incoming_message(int sockfd, int32_t type) {
 	size_t read_count, total_read_count, left_to_read;
 	i3_incoming_message_header *header;
 	unsigned char *message;
@@ -246,7 +161,7 @@ i3_get_window_event(int sockfd) {
 		die("bad magic string");
 	}
 
-	if ((header->type & I3_EVENT_MASK_BIT) == 0) {
+	if (header->type != type) {
 		die("bad response type");
 	}
 
@@ -271,7 +186,40 @@ i3_get_window_event(int sockfd) {
 
 	message[total_read_count] = '\0';
 
-	return (char *)(message);
+	return message;
+}
+
+static void
+i3_run_command(int sockfd, const char *cmd) {
+	unsigned char *message;
+
+	i3_send(sockfd, I3_MSG_TYPE_COMMAND, cmd);
+	message = i3_get_incoming_message(sockfd, I3_MSG_TYPE_COMMAND);
+
+	if (strncmp((char *)(message), "[{\"success\":true}]", 18) != 0) {
+		die("couldn't run command");
+	}
+
+	free(message);
+}
+
+static void
+i3_subscribe_to_window_events(int sockfd) {
+	unsigned char *message;
+
+	i3_send(sockfd, I3_MSG_TYPE_SUBSCRIBE, "[ \"window\" ]");
+	message = i3_get_incoming_message(sockfd, I3_MSG_TYPE_SUBSCRIBE);
+
+	if (strncmp((char *)(message), "{\"success\":true}", 16) != 0) {
+		die("couldn't subscribe to window events");
+	}
+
+	free(message);
+}
+
+static char *
+i3_get_window_event(int sockfd) {
+	return (char *)(i3_get_incoming_message(sockfd, I3_EVENT_MASK_BIT | I3_WINDOW_EVENT));
 }
 
 int
