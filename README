@@ -1,0 +1,7 @@
+autospliti3
+===========
+automatically change the layout
+of i3 based on the width and height
+of the focused window, this is not
+ready yet, a lot of duplicated code
+and errors to handle
