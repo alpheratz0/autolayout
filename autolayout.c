@@ -42,6 +42,7 @@ dief(const char *err, ...) {
 static char *
 i3_get_socket_path(void) {
 	size_t index = 0;
+	int pclose_result;
 	char *path, current;
 	FILE *f;
 
@@ -53,20 +54,25 @@ i3_get_socket_path(void) {
 
 	while ((current = fgetc(f)) != EOF && current != '\n') {
 		if (index == (SUN_MAX_PATH_LENGTH - 1))
-			die("invalid socket path length");
+			dief("invalid unix socket path, max length supported: %zu", SUN_MAX_PATH_LENGTH);
 		path[index++] = current;
 	}
 
 	path[index] = '\0';
 
-	switch (pclose(f)) {
+	if ((pclose_result = pclose(f)) == -1) {
+		die("error while calling pclose()");
+	}
+
+	/* get exit code */
+	switch (pclose_result >> 8) {
 		case 0:
 			return path;
-		case -1:
-			die("error while calling pclose()");
+		case 127:
+			die("i3 isn't installed on your computer");
 			break;
 		default:
-			die("i3 --get-socket-path returned non-zero exit status code");
+			die("i3 isn't running");
 			break;
 	}
 
