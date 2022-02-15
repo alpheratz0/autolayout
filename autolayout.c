@@ -22,6 +22,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/un.h>
+#include <sys/wait.h>
 #include <sys/socket.h>
 
 #define I3_MAGIC "i3-ipc"
@@ -58,7 +59,7 @@ dief(const char *err, ...) {
 static char *
 i3_get_socket_path(void) {
 	size_t index = 0;
-	int pclose_result;
+	int chstatus;
 	char *path, current;
 	FILE *f;
 
@@ -76,12 +77,12 @@ i3_get_socket_path(void) {
 
 	path[index] = '\0';
 
-	if ((pclose_result = pclose(f)) == -1) {
+
+	if ((chstatus = pclose(f)) == -1) {
 		die("error while calling pclose()");
 	}
 
-	/* get exit code */
-	switch (pclose_result >> 8) {
+	switch (WEXITSTATUS(chstatus)) {
 		case 0:
 			return path;
 		case 127:
