@@ -245,7 +245,8 @@ i3_get_window_event(int sockfd) {
 }
 
 int
-main(int argc, char **argv) {
+main(int argc, char **argv)
+{
 	if (argc > 1 && strcmp(argv[1], "--daemon") == 0) {
 		switch (fork()) {
 			case -1:
