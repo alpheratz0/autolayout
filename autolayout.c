@@ -260,7 +260,7 @@ main(int argc, char **argv)
 		}
 	}
 
-	char *message;
+	char *raw_event;
 	int cmd_sockfd, evt_sockfd;
 
 	i3_connect(&cmd_sockfd);
@@ -268,9 +268,9 @@ main(int argc, char **argv)
 
 	i3_subscribe_to_window_events(evt_sockfd);
 
-	while ((message = i3_get_window_event(evt_sockfd))) {
-		if (strstr(message, "\"change\":\"focus\"")) {
-			char *pos = strstr(message, "window_rect");
+	while ((raw_event = i3_get_window_event(evt_sockfd))) {
+		if (strstr(raw_event, "\"change\":\"focus\"")) {
+			char *pos = strstr(raw_event, "window_rect");
 
 			int width = atoi(strstr(pos, "width") + 7);
 			int height = atoi(strstr(pos, "height") + 8);
@@ -279,7 +279,7 @@ main(int argc, char **argv)
 			else i3_run_command(cmd_sockfd, "split v");
 		}
 
-		free(message);
+		free(raw_event);
 	}
 	
 	return 0;
