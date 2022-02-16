@@ -11,7 +11,16 @@ all: autolayout
 autolayout: ${OBJ} 
 	@${CC} -o $@ ${OBJ}
 
+install: all
+	@mkdir -p ${DESTDIR}${PREFIX}/bin
+	@cp -f autolayout ${DESTDIR}${PREFIX}/bin
+	@chmod 755 ${DESTDIR}${PREFIX}/bin/autolayout
+
+uninstall:
+	@rm -f ${DESTDIR}${PREFIX}/bin/autolayout
+
 clean:
 	@rm -f autolayout ${OBJ} 
 
-.PHONY: all clean
+
+.PHONY: all clean install uninstall
