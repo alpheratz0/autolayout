@@ -170,13 +170,9 @@ i3_get_incoming_message_header(int sockfd) {
 
 	while (left_to_read > 0) {
 		if ((read_count = read(sockfd, header + total_read_count, left_to_read)) == EOF)
-			break;
+			dief("data truncated, expected: %zu, received: %zu", left_to_read + total_read_count, total_read_count);
 		total_read_count += read_count;
 		left_to_read -= read_count;
-	}
-
-	if (left_to_read > 0) {
-		die("error while reading incoming message header, data truncated");
 	}
 
 	return (i3_incoming_message_header *)(header);
@@ -208,13 +204,9 @@ i3_get_incoming_message(int sockfd, int32_t type) {
 
 	while (left_to_read > 0) {
 		if ((read_count = read(sockfd, message + total_read_count, left_to_read)) == EOF)
-			break;
+			dief("data truncated, expected: %zu, received: %zu", left_to_read + total_read_count, total_read_count);
 		total_read_count += read_count;
 		left_to_read -= read_count;
-	}
-
-	if (left_to_read > 0) {
-		die("error while reading message, data truncated");
 	}
 
 	message[total_read_count] = '\0';
