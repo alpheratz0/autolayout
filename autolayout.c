@@ -77,7 +77,6 @@ i3_get_socket_path(void) {
 
 	path[index] = '\0';
 
-
 	if ((chstatus = pclose(f)) == -1) {
 		die("error while calling pclose()");
 	}
