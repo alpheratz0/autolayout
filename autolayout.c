@@ -32,12 +32,23 @@
 #define I3_WINDOW_EVENT 3
 #define I3_EVENT_MASK_BIT (1 << (sizeof(int32_t) * 8 - 1))
 #define SUN_MAX_PATH_LENGTH sizeof(((struct sockaddr_un *)0)->sun_path)
+#define MATCH_ARG(arg, sh, lo) ((strcmp((arg), (sh)) == 0) || (strcmp((arg), (lo)) == 0))
 
 typedef struct __attribute__((packed)) {
 	char magic[6];
 	int32_t size;
 	int32_t type;
 } i3_incoming_message_header;
+
+
+static void
+usage(void) {
+	puts("Usage: autolayout [ -hd ]");
+	puts("Options are:");
+	puts("     -d | --daemon                  run in the background");
+	puts("     -h | --help                    display this message and exit");
+	exit(0);
+}
 
 static void
 die(const char *err) {
@@ -244,20 +255,27 @@ i3_get_window_event(int sockfd) {
 	return (char *)(i3_get_incoming_message(sockfd, I3_EVENT_MASK_BIT | I3_WINDOW_EVENT));
 }
 
+static void
+daemonize(void) {
+	switch (fork()) {
+		case -1:
+			die("fork failed");
+			break;
+		case 0:
+			break;
+		default:
+			exit(0);
+			break;
+	}
+}
+
 int
 main(int argc, char **argv)
 {
-	if (argc > 1 && ((strcmp(argv[1], "--daemon") == 0) || strcmp(argv[1], "-d") == 0)) {
-		switch (fork()) {
-			case -1:
-				die("fork failed");
-				break;
-			case 0:
-				break;
-			default:
-				exit(0);
-				break;
-		}
+	for (int i = 1; i < argc; i++) {
+		if (MATCH_ARG(argv[i], "-d", "--daemon")) daemonize();
+		else if (MATCH_ARG(argv[i], "-h", "--help")) usage();
+		else dief("invalid option %s", argv[i]);
 	}
 
 	char *raw_event;
