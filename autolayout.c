@@ -32,7 +32,7 @@
 #define I3_WINDOW_EVENT 3
 #define I3_EVENT_MASK_BIT (1 << (sizeof(int32_t) * 8 - 1))
 #define SUN_MAX_PATH_LENGTH sizeof(((struct sockaddr_un *)0)->sun_path)
-#define MATCH_ARG(arg, sh, lo) ((strcmp((arg), (sh)) == 0) || (strcmp((arg), (lo)) == 0))
+#define MATCH_OPT(arg, sh, lo) ((strcmp((arg), (sh)) == 0) || (strcmp((arg), (lo)) == 0))
 
 typedef struct __attribute__((packed)) {
 	char magic[6];
@@ -273,8 +273,8 @@ int
 main(int argc, char **argv)
 {
 	for (int i = 1; i < argc; i++) {
-		if (MATCH_ARG(argv[i], "-d", "--daemon")) daemonize();
-		else if (MATCH_ARG(argv[i], "-h", "--help")) usage();
+		if (MATCH_OPT(argv[i], "-d", "--daemon")) daemonize();
+		else if (MATCH_OPT(argv[i], "-h", "--help")) usage();
 		else dief("invalid option %s", argv[i]);
 	}
 
