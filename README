@@ -4,6 +4,14 @@ automatically change the layout
 of i3 based on the width and height
 of the focused window
 
+build
+=====
+$ make
+
+install
+=======
+$ sudo make install
+
 todos
 =====
 * parse json messages
