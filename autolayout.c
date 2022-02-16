@@ -247,7 +247,7 @@ i3_get_window_event(int sockfd) {
 int
 main(int argc, char **argv)
 {
-	if (argc > 1 && strcmp(argv[1], "--daemon") == 0) {
+	if (argc > 1 && ((strcmp(argv[1], "--daemon") == 0) || strcmp(argv[1], "-d") == 0)) {
 		switch (fork()) {
 			case -1:
 				die("fork failed");
