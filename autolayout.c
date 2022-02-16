@@ -30,7 +30,7 @@
 #define I3_MSG_TYPE_COMMAND 0
 #define I3_MSG_TYPE_SUBSCRIBE 2
 #define I3_WINDOW_EVENT 3
-#define I3_EVENT_MASK_BIT (1 << (sizeof(int) * 8 - 1))
+#define I3_EVENT_MASK_BIT (1 << (sizeof(int32_t) * 8 - 1))
 #define SUN_MAX_PATH_LENGTH sizeof(((struct sockaddr_un *)0)->sun_path)
 
 typedef struct __attribute__((packed)) {
