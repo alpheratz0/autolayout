@@ -253,9 +253,9 @@ main(int argc, char **argv)
 				die("fork failed");
 				break;
 			case 0:
-				exit(0);
 				break;
 			default:
+				exit(0);
 				break;
 		}
 	}
