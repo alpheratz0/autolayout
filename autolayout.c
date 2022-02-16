@@ -187,11 +187,11 @@ i3_get_incoming_message(int sockfd, int32_t type) {
 	header = i3_get_incoming_message_header(sockfd);
 
 	if (strncmp(header->magic, I3_MAGIC, I3_MAGIC_LENGTH) != 0) {
-		die("bad magic string");
+		die("received incorrect magic string");
 	}
 
 	if (header->type != type) {
-		die("bad response type");
+		dief("invalid message type, expected: %d, received: %d", type, header->type);
 	}
 
 	total_read_count = 0;
@@ -222,7 +222,7 @@ i3_run_command(int sockfd, const char *cmd) {
 	message = i3_get_incoming_message(sockfd, I3_MSG_TYPE_COMMAND);
 
 	if (strncmp((char *)(message), "[{\"success\":true}]", 18) != 0) {
-		die("couldn't run command");
+		dief("failed to run command: %s", cmd);
 	}
 
 	free(message);
@@ -236,7 +236,7 @@ i3_subscribe_to_window_events(int sockfd) {
 	message = i3_get_incoming_message(sockfd, I3_MSG_TYPE_SUBSCRIBE);
 
 	if (strncmp((char *)(message), "{\"success\":true}", 16) != 0) {
-		die("couldn't subscribe to window events");
+		die("failed to subscribe to window events");
 	}
 
 	free(message);
