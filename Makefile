@@ -6,9 +6,9 @@ CC = cc
 SRC = autolayout.c
 OBJ = ${SRC:.c=.o}
 
-all: autolayout 
+all: autolayout
 
-autolayout: ${OBJ} 
+autolayout: ${OBJ}
 	@${CC} -o $@ ${OBJ}
 
 install: all
@@ -20,7 +20,7 @@ uninstall:
 	@rm -f ${DESTDIR}${PREFIX}/bin/autolayout
 
 clean:
-	@rm -f autolayout ${OBJ} 
+	@rm -f autolayout ${OBJ}
 
 
 .PHONY: all clean install uninstall

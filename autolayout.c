@@ -282,6 +282,6 @@ main(int argc, char **argv)
 
 		free(raw_event);
 	}
-	
+
 	return 0;
 }
