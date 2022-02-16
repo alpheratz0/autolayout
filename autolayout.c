@@ -39,13 +39,13 @@ typedef struct __attribute__((packed)) {
 	int32_t type;
 } i3_incoming_message_header;
 
-extern void
+static void
 die(const char *err) {
 	fprintf(stderr, "autolayout: %s\n", err);
 	exit(1);
 }
 
-extern void
+static void
 dief(const char *err, ...) {
 	va_list list;
 	fputs("autolayout: ", stderr);
