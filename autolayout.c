@@ -159,7 +159,8 @@ i3_send(int sockfd, int32_t type, const char *payload) {
 static i3_incoming_message_header *
 i3_get_incoming_message_header(int sockfd) {
 	unsigned char *header;
-	size_t read_count, total_read_count, left_to_read;
+	ssize_t read_count;
+	size_t total_read_count, left_to_read;
 
 	total_read_count = 0;
 	left_to_read = sizeof(i3_incoming_message_header);
@@ -185,7 +186,8 @@ i3_get_incoming_message_header(int sockfd) {
 
 static unsigned char *
 i3_get_incoming_message(int sockfd, int32_t type) {
-	size_t read_count, total_read_count, left_to_read;
+	ssize_t read_count;
+	size_t total_read_count, left_to_read;
 	i3_incoming_message_header *header;
 	unsigned char *message;
 
