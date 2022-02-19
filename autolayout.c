@@ -274,8 +274,7 @@ daemonize(void) {
 }
 
 int
-main(int argc, char **argv)
-{
+main(int argc, char **argv) {
 	for (int i = 1; i < argc; i++) {
 		if (MATCH_OPT(argv[i], "-d", "--daemon")) daemonize();
 		else if (MATCH_OPT(argv[i], "-h", "--help")) usage();
