@@ -22,6 +22,7 @@ install: all
 
 uninstall:
 	@rm -f ${DESTDIR}${PREFIX}/bin/autolayout
+	@rm -f ${DESTDIR}${MANPREFIX}/man1/autolayout.1
 
 clean:
 	@rm -f autolayout ${OBJ}
