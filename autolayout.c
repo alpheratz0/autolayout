@@ -114,9 +114,9 @@ i3_connect(int *sockfd) {
 
 	*sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
 
-    memset(&sock_addr, 0, sizeof(sock_addr));
-    sock_addr.sun_family = AF_UNIX;
-    memcpy(&sock_addr.sun_path, sock_path, strlen(sock_path));
+	memset(&sock_addr, 0, sizeof(sock_addr));
+	sock_addr.sun_family = AF_UNIX;
+	memcpy(&sock_addr.sun_path, sock_path, strlen(sock_path));
 
 	if (connect(*sockfd, (struct sockaddr*)&sock_addr, sizeof(sock_addr)) != 0) {
 		free(sock_path);
