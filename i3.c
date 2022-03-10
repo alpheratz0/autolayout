@@ -44,9 +44,10 @@ i3_get_socket_path(void) {
 	}
 
 	while ((current = fgetc(f)) != EOF && current != '\n') {
-		if (index == (SUN_MAX_PATH_LENGTH - 1))
+		if (index == (SUN_MAX_PATH_LENGTH - 1)) {
 			dief("invalid unix socket path, max length supported: %zu",
 					SUN_MAX_PATH_LENGTH);
+		}
 		path[index++] = current;
 	}
 
