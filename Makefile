@@ -1,16 +1,23 @@
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
+LDLIBS = -ljson-c
+LDFLAGS = -s ${LDLIBS}
 INCS = -I. -I/usr/include
-CFLAGS = -pedantic -Wall -Os ${INCS}
+CFLAGS = -pedantic -Wall -Wextra -Os ${INCS}
 CC = cc
 
-SRC = autolayout.c
+SRC = autolayout.c \
+	  i3.c \
+	  debug.c
+
 OBJ = ${SRC:.c=.o}
 
 all: autolayout
 
+${OBJ}: i3.h debug.h numdef.h
+
 autolayout: ${OBJ}
-	@${CC} -o $@ ${OBJ}
+	@${CC} -o $@ ${OBJ} ${LDFLAGS}
 
 install: all
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
