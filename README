@@ -1,5 +1,5 @@
-autospliti3
-===========
+autolayout
+==========
 automatically change the layout of i3 based on the width and height of the focused window, preview: https://i.imgur.com/bq8Px5a.mp4
 
 build
