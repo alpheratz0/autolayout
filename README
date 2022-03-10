@@ -14,5 +14,4 @@ $ sudo make install
 
 TODOS
 =====
-* parse json messages
 * use exec(3) instead of popen(3)
