@@ -44,6 +44,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #include "i3.h"
 #include "debug.h"
