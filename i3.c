@@ -30,46 +30,84 @@ typedef struct i3_incoming_message_header i3_incoming_message_header_t;
 
 static char *
 i3_get_socket_path(void) {
-	size_t index = 0;
-	int chstatus;
-	char *path, current;
-	FILE *f;
+	int fd[2];
+	pid_t pid;
+	char *path;
+	char *argv[3];
+	siginfo_t siginfo;
+	ssize_t read_count;
+	size_t left_to_read;
+	size_t total_read_count;
+
+	if (pipe(fd) == -1) {
+		dief("pipe failed: %s", strerror(errno));
+	}
+
+	if ((pid = fork()) == -1) {
+		dief("fork failed: %s", strerror(errno));
+	}
+
+	if (pid == 0) {
+		if (close(fd[0]) == -1) {
+			dief("close failed: %s", strerror(errno));
+		}
+
+		dup2(fd[1], STDOUT_FILENO);
+
+		argv[0] = "i3";
+		argv[1] = "--get-socketpath";
+		argv[2] = NULL;
+
+		if (execvp(argv[0], argv) == -1) {
+			exit(127);
+		}
+	}
+
+	if (close(fd[1]) == -1) {
+		dief("close failed: %s", strerror(errno));
+	}
 
 	if (!(path = malloc(SUN_MAX_PATH_LENGTH))) {
 		die("error while calling malloc, no memory available");
 	}
 
-	if (!(f = popen("i3 --get-socketpath 2>/dev/null", "r"))) {
-		dief("failed to open pipe: %s", strerror(errno));
-	}
+	read_count = -1;
+	total_read_count = 0;
+	left_to_read = SUN_MAX_PATH_LENGTH;
 
-	while ((current = fgetc(f)) != EOF && current != '\n') {
-		if (index == (SUN_MAX_PATH_LENGTH - 1)) {
-			dief("invalid unix socket path, max length supported: %zu",
-					SUN_MAX_PATH_LENGTH);
+	while (read_count != 0) {
+		read_count = read(fd[0], path + total_read_count, left_to_read);
+
+		if (read_count == -1) {
+			dief("read failed: %s", strerror(errno));
 		}
-		path[index++] = current;
+
+		total_read_count += read_count;
+		left_to_read -= read_count;
 	}
 
-	path[index] = '\0';
-
-	if ((chstatus = pclose(f)) == -1) {
-		dief("failed to close pipe: %s", strerror(errno));
+	if (total_read_count > 0) {
+		path[total_read_count-1] = '\0';
 	}
 
-	switch (WEXITSTATUS(chstatus)) {
-		case 0:
-			return path;
-		case 127:
-			die("i3 isn't installed on your computer");
+	memset(&siginfo, 0, sizeof(siginfo));
+
+	if (waitid(P_PID, pid, &siginfo, WEXITED) == -1) {
+		printf("waitid failed: %s", strerror(errno));
+	}
+
+	switch (siginfo.si_code) {
+		case CLD_EXITED:
+			if (siginfo.si_status != 0)
+				dief("i3 --get-socketpath failed with exit code: %d", siginfo.si_status);
 			break;
-		default:
-			die("i3 isn't running");
+		case CLD_KILLED:
+		case CLD_DUMPED:
+			die("i3 --get-socketpath failed");
 			break;
 	}
 
-	/* unreachable */
-	return NULL;
+	return path;
 }
 
 extern i3_connection_t
