@@ -6,6 +6,7 @@
 #include <sys/un.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <json-c/json.h>
 
 #include "numdef.h"
