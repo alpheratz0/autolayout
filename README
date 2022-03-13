@@ -10,7 +10,3 @@ $ make
 install
 =======
 $ sudo make install
-
-TODOS
-=====
-* use exec(3) instead of popen(3)
