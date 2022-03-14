@@ -94,7 +94,7 @@ i3_get_socket_path(void) {
 	memset(&siginfo, 0, sizeof(siginfo));
 
 	if (waitid(P_PID, pid, &siginfo, WEXITED) == -1) {
-		printf("waitid failed: %s", strerror(errno));
+		dief("waitid failed: %s", strerror(errno));
 	}
 
 	switch (siginfo.si_code) {
