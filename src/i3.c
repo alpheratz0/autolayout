@@ -21,13 +21,13 @@
 #define I3_EVENT_MASK_BIT 		(1 << (sizeof(i32) * 8 - 1))
 #define SUN_MAX_PATH_LENGTH 	(sizeof(((struct sockaddr_un *)(0))->sun_path))
 
+typedef struct i3_incoming_message_header i3_incoming_message_header_t;
+
 struct __attribute__((packed)) i3_incoming_message_header {
 	char magic[6];
 	i32 size;
 	i32 type;
 };
-
-typedef struct i3_incoming_message_header i3_incoming_message_header_t;
 
 static char *
 i3_get_socket_path(void) {
