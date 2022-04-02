@@ -30,12 +30,19 @@ install: all
 	@cp -f man/autolayout.1 ${DESTDIR}${MANPREFIX}/man1
 	@chmod 644 ${DESTDIR}${MANPREFIX}/man1/autolayout.1
 
+dist: clean
+	@mkdir -p autolayout-${VERSION}
+	@cp -R LICENSE Makefile README man src autolayout-${VERSION}
+	@tar -cf autolayout-${VERSION}.tar autolayout-${VERSION}
+	@gzip autolayout-${VERSION}.tar
+	@rm -rf autolayout-${VERSION}
+
 uninstall:
 	@rm -f ${DESTDIR}${PREFIX}/bin/autolayout
 	@rm -f ${DESTDIR}${MANPREFIX}/man1/autolayout.1
 
 clean:
-	@rm -f autolayout ${OBJ}
+	@rm -f autolayout autolayout-${VERSION}.tar.gz ${OBJ}
 
 
-.PHONY: all clean install uninstall
+.PHONY: all clean install uninstall dist
