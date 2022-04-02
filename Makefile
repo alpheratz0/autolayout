@@ -44,5 +44,4 @@ uninstall:
 clean:
 	@rm -f autolayout autolayout-${VERSION}.tar.gz ${OBJ}
 
-
 .PHONY: all clean install uninstall dist
