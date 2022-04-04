@@ -75,9 +75,7 @@ static void
 daemonize(void) {
 	pid_t pid;
 
-	pid = fork();
-
-	if (pid == -1) {
+	if ((pid = fork()) == -1) {
 		dief("fork failed: %s", strerror(errno));
 	}
 
