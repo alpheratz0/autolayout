@@ -77,9 +77,7 @@ i3_get_socket_path(void) {
 	left_to_read = SUN_MAX_PATH_LENGTH;
 
 	while (read_count != 0) {
-		read_count = read(fd[0], path + total_read_count, left_to_read);
-
-		if (read_count == -1) {
+		if ((read_count = read(fd[0], path + total_read_count, left_to_read)) == -1) {
 			dief("read failed: %s", strerror(errno));
 		}
 
@@ -99,8 +97,9 @@ i3_get_socket_path(void) {
 
 	switch (siginfo.si_code) {
 		case CLD_EXITED:
-			if (siginfo.si_status != 0)
+			if (siginfo.si_status != 0) {
 				dief("i3 --get-socketpath failed with exit code: %d", siginfo.si_status);
+			}
 			break;
 		case CLD_KILLED:
 		case CLD_DUMPED:
