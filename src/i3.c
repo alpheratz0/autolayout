@@ -133,7 +133,7 @@ i3_connect(void) {
 	return conn;
 }
 
-extern void
+static void
 i3_send(i3_connection_t conn, i32 type, const char *payload) {
 	u8 *message;
 	i32 payload_length;
