@@ -43,7 +43,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include <sys/resource.h>
 #include <sys/types.h>
 
 #include "i3.h"
@@ -73,15 +77,56 @@ version(void) {
 
 static void
 daemonize(void) {
-	pid_t pid;
+	int dnfd;
+	sigset_t ss;
+	struct rlimit limits = { 0 };
 
-	if ((pid = fork()) == -1) {
-		dief("fork failed: %s", strerror(errno));
+	getrlimit(RLIMIT_NOFILE, &limits);
+
+	while(--limits.rlim_max > 2) {
+		close((int)(limits.rlim_max));
 	}
 
-	/* exit on parent process */
-	if (pid != 0) {
-		exit(0);
+	for (int s = 1; s < _NSIG; ++s) {
+		signal(s, SIG_DFL);
+	}
+
+	sigemptyset(&ss);
+	sigprocmask(SIG_SETMASK, &ss, NULL);
+
+	switch(fork()) {
+		case -1:
+			dief("fork failed: %s", strerror(errno));
+			break;
+		case 0:
+			if(setsid() == -1) {
+				dief("setsid failed: %s", strerror(errno));
+			}
+			break;
+		default:
+			exit(0);
+			break;
+	}
+
+	switch(fork()) {
+		case -1:
+			dief("fork failed: %s", strerror(errno));
+			break;
+		case 0:
+			umask(0);
+			chdir("/");
+
+			if((dnfd = open("/dev/null", O_RDWR)) == -1) {
+				dief("open failed: %s", strerror(errno));
+			}
+
+			dup2(dnfd, STDIN_FILENO);
+			dup2(dnfd, STDOUT_FILENO);
+			dup2(dnfd, STDERR_FILENO);
+			break;
+		default:
+			exit(0);
+			break;
 	}
 }
 
