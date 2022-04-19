@@ -83,7 +83,7 @@ daemonize(void) {
 
 	getrlimit(RLIMIT_NOFILE, &limits);
 
-	while(--limits.rlim_max > 2) {
+	while (--limits.rlim_max > 2) {
 		close((int)(limits.rlim_max));
 	}
 
@@ -94,12 +94,12 @@ daemonize(void) {
 	sigemptyset(&ss);
 	sigprocmask(SIG_SETMASK, &ss, NULL);
 
-	switch(fork()) {
+	switch (fork()) {
 		case -1:
 			dief("fork failed: %s", strerror(errno));
 			break;
 		case 0:
-			if(setsid() == -1) {
+			if (setsid() == -1) {
 				dief("setsid failed: %s", strerror(errno));
 			}
 			break;
@@ -108,7 +108,7 @@ daemonize(void) {
 			break;
 	}
 
-	switch(fork()) {
+	switch (fork()) {
 		case -1:
 			dief("fork failed: %s", strerror(errno));
 			break;
@@ -116,7 +116,7 @@ daemonize(void) {
 			umask(0);
 			chdir("/");
 
-			if((dnfd = open("/dev/null", O_RDWR)) == -1) {
+			if ((dnfd = open("/dev/null", O_RDWR)) == -1) {
 				dief("open failed: %s", strerror(errno));
 			}
 

@@ -308,7 +308,7 @@ i3_wait_for_window_event(i3_connection_t conn) {
 	json_object_object_get_ex(window_rect, "width", &width);
 	json_object_object_get_ex(window_rect, "height", &height);
 
-	if(!(ev = malloc(sizeof(i3_window_event_t)))) {
+	if (!(ev = malloc(sizeof(i3_window_event_t)))) {
 		die("error while calling malloc, no memory available");
 	}
 
