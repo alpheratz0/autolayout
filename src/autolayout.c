@@ -139,7 +139,8 @@ main(int argc, char **argv) {
 		if (match_opt(*argv, "-d", "--daemon")) daemonize();
 		else if (match_opt(*argv, "-h", "--help")) usage();
 		else if (match_opt(*argv, "-v", "--version")) version();
-		else dief("invalid option %s", *argv);
+		else if (**argv == '-') dief("invalid option %s", *argv);
+		else dief("unexpected argument: %s", *argv);
 	}
 
 	i3_window_event_t *ev;
