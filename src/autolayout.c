@@ -61,7 +61,7 @@ match_opt(const char *in, const char *sh, const char *lo) {
 
 static void
 usage(void) {
-	puts("Usage: autolayout [ -hdv ]");
+	puts("Usage: autolayout [ -dhv ]");
 	puts("Options are:");
 	puts("     -d | --daemon                  run in the background");
 	puts("     -h | --help                    display this message and exit");
