@@ -119,6 +119,7 @@ i3_connect(void) {
 	sock_path = i3_get_socket_path();
 	conn = socket(AF_UNIX, SOCK_STREAM, 0);
 
+	/* zero the struct, no need to set sock_addr.sun_path[strlen(sock_path)] to '\0' */
 	memset(&sock_addr, 0, sizeof(sock_addr));
 	sock_addr.sun_family = AF_UNIX;
 	memcpy(&sock_addr.sun_path, sock_path, strlen(sock_path));
