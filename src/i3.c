@@ -15,6 +15,9 @@
 
 #define I3_MAGIC 				("i3-ipc")
 #define I3_MAGIC_LENGTH 		(sizeof(I3_MAGIC) - 1)
+#define I3_IMSG_SIZE_OFFSET     (I3_MAGIC_LENGTH)
+#define I3_IMSG_TYPE_OFFSET     (I3_MAGIC_LENGTH + sizeof(i32))
+#define I3_IMSG_HDR_SIZE        (I3_MAGIC_LENGTH + sizeof(i32) * 2)
 #define I3_MSG_TYPE_COMMAND 	(0)
 #define I3_MSG_TYPE_SUBSCRIBE 	(2)
 #define I3_WINDOW_EVENT 		(3)
@@ -23,8 +26,8 @@
 
 typedef struct i3_incoming_message_header i3_incoming_message_header_t;
 
-struct __attribute__((packed)) i3_incoming_message_header {
-	char magic[6];
+struct i3_incoming_message_header {
+	char magic[I3_MAGIC_LENGTH];
 	i32 size;
 	i32 type;
 };
@@ -166,19 +169,27 @@ i3_send(i3_connection_t conn, i32 type, const char *payload) {
 
 static i3_incoming_message_header_t *
 i3_get_incoming_message_header(i3_connection_t conn) {
-	u8 *header;
+	u8 buff[I3_IMSG_HDR_SIZE];
 	ssize_t read_count;
 	size_t total_read_count, left_to_read;
+	i3_incoming_message_header_t *hdr;
 
 	total_read_count = 0;
-	left_to_read = sizeof(i3_incoming_message_header_t);
 
-	if (!(header = malloc(left_to_read))) {
+	/*
+	   with tcc sizeof(i3_incoming_message_header_t) returns 16 even
+	   with __attribute__((packed)), so this is a workaround to make
+	   the binary compiled by tcc work
+	*/
+
+	left_to_read = I3_IMSG_HDR_SIZE;
+
+	if (!(hdr = malloc(sizeof(i3_incoming_message_header_t)))) {
 		die("error while calling malloc, no memory available");
 	}
 
 	while (left_to_read > 0) {
-		if ((read_count = read(conn, header + total_read_count, left_to_read)) == -1) {
+		if ((read_count = read(conn, &buff[total_read_count], left_to_read)) == -1) {
 			dief("error while reading from socket: %s", strerror(errno));
 		}
 
@@ -192,7 +203,19 @@ i3_get_incoming_message_header(i3_connection_t conn) {
 		left_to_read -= read_count;
 	}
 
-	return (i3_incoming_message_header_t *)(header);
+	memcpy(hdr->magic, buff, I3_MAGIC_LENGTH);
+
+	hdr->size = buff[I3_IMSG_SIZE_OFFSET] |
+				buff[I3_IMSG_SIZE_OFFSET + 1] << 8 |
+				buff[I3_IMSG_SIZE_OFFSET + 2] << 16 |
+				buff[I3_IMSG_SIZE_OFFSET + 3] << 24;
+
+	hdr->type = buff[I3_IMSG_TYPE_OFFSET] |
+				buff[I3_IMSG_TYPE_OFFSET + 1] << 8 |
+				buff[I3_IMSG_TYPE_OFFSET + 2] << 16 |
+				buff[I3_IMSG_TYPE_OFFSET + 3] << 24;
+
+	return hdr;
 }
 
 static u8 *
