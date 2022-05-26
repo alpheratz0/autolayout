@@ -53,6 +53,12 @@
 #include "i3.h"
 #include "debug.h"
 
+static inline void
+print_opt(const char *sh, const char *lo, const char *desc)
+{
+	printf("%7s | %-25s %s\n", sh, lo, desc);
+}
+
 static bool
 match_opt(const char *in, const char *sh, const char *lo)
 {
@@ -65,9 +71,9 @@ usage(void)
 {
 	puts("Usage: autolayout [ -dhv ]");
 	puts("Options are:");
-	puts("     -d | --daemon                  run in the background");
-	puts("     -h | --help                    display this message and exit");
-	puts("     -v | --version                 display program version");
+	print_opt("-d", "--daemon", "run in the background");
+	print_opt("-h", "--help", "display this message and exit");
+	print_opt("-v", "--version", "display the program version");
 	exit(0);
 }
 
