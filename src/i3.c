@@ -33,7 +33,8 @@ struct i3_incoming_message_header {
 };
 
 static char *
-i3_get_socket_path(void) {
+i3_get_socket_path(void)
+{
 	int fd[2];
 	pid_t pid;
 	char *path;
@@ -114,7 +115,8 @@ i3_get_socket_path(void) {
 }
 
 extern i3_connection_t
-i3_connect(void) {
+i3_connect(void)
+{
 	i3_connection_t conn;
 	char *sock_path;
 	struct sockaddr_un sock_addr;
@@ -138,7 +140,8 @@ i3_connect(void) {
 }
 
 static void
-i3_send(i3_connection_t conn, i32 type, const char *payload) {
+i3_send(i3_connection_t conn, i32 type, const char *payload)
+{
 	u8 *message;
 	i32 payload_length;
 	size_t message_length, position;
@@ -170,7 +173,8 @@ i3_send(i3_connection_t conn, i32 type, const char *payload) {
 }
 
 static i3_incoming_message_header_t *
-i3_get_incoming_message_header(i3_connection_t conn) {
+i3_get_incoming_message_header(i3_connection_t conn)
+{
 	u8 buff[I3_IMSG_HDR_SIZE];
 	ssize_t read_count;
 	size_t total_read_count, left_to_read;
@@ -221,7 +225,8 @@ i3_get_incoming_message_header(i3_connection_t conn) {
 }
 
 static u8 *
-i3_get_incoming_message(i3_connection_t conn, i32 type) {
+i3_get_incoming_message(i3_connection_t conn, i32 type)
+{
 	ssize_t read_count;
 	size_t total_read_count, left_to_read;
 	i3_incoming_message_header_t *header;
@@ -266,7 +271,8 @@ i3_get_incoming_message(i3_connection_t conn, i32 type) {
 }
 
 extern void
-i3_run_command(i3_connection_t conn, const char *cmd) {
+i3_run_command(i3_connection_t conn, const char *cmd)
+{
 	u8 *message;
 
 	i3_send(conn, I3_MSG_TYPE_COMMAND, cmd);
@@ -280,7 +286,8 @@ i3_run_command(i3_connection_t conn, const char *cmd) {
 }
 
 extern void
-i3_subscribe_to_window_events(i3_connection_t conn) {
+i3_subscribe_to_window_events(i3_connection_t conn)
+{
 	u8 *message;
 
 	i3_send(conn, I3_MSG_TYPE_SUBSCRIBE, "[ \"window\" ]");
@@ -294,7 +301,8 @@ i3_subscribe_to_window_events(i3_connection_t conn) {
 }
 
 static i32
-i3_wev_from_str(const char *str) {
+i3_wev_from_str(const char *str)
+{
 	if (strcmp(str, "new") == 0) 	return I3_WEVCH_NEW;
 	if (strcmp(str, "focus") == 0) 	return I3_WEVCH_FOCUS;
 	if (strcmp(str, "move") == 0) 	return I3_WEVCH_MOVE;
@@ -303,7 +311,8 @@ i3_wev_from_str(const char *str) {
 }
 
 extern i3_window_event_t *
-i3_wait_for_window_event(i3_connection_t conn) {
+i3_wait_for_window_event(i3_connection_t conn)
+{
 
 	/*
 		window_event

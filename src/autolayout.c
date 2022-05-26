@@ -54,13 +54,15 @@
 #include "debug.h"
 
 static bool
-match_opt(const char *in, const char *sh, const char *lo) {
+match_opt(const char *in, const char *sh, const char *lo)
+{
 	return (strcmp(in, sh) == 0) ||
 		   (strcmp(in, lo) == 0);
 }
 
 static void
-usage(void) {
+usage(void)
+{
 	puts("Usage: autolayout [ -dhv ]");
 	puts("Options are:");
 	puts("     -d | --daemon                  run in the background");
@@ -70,13 +72,15 @@ usage(void) {
 }
 
 static void
-version(void) {
+version(void)
+{
 	puts("autolayout version "VERSION);
 	exit(0);
 }
 
 static void
-daemonize(void) {
+daemonize(void)
+{
 	int dnfd;
 	sigset_t ss;
 	struct rlimit limits = { 0 };
@@ -131,7 +135,8 @@ daemonize(void) {
 }
 
 int
-main(int argc, char **argv) {
+main(int argc, char **argv)
+{
 	/* skip program name */
 	--argc; ++argv;
 
