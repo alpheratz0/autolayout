@@ -162,7 +162,9 @@ i3_send(i3_connection_t conn, i32 type, const char *payload) {
 
 	memcpy(message + position, payload, payload_length);
 
-	write(conn, message, message_length);
+	if (write(conn, message, message_length) == -1) {
+		dief("write failed: %s", strerror(errno));
+	}
 
 	free(message);
 }
