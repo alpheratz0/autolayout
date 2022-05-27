@@ -1,7 +1,7 @@
 #ifndef __AUTOLAYOUT_I3_H__
 #define __AUTOLAYOUT_I3_H__
 
-#include "numdef.h"
+#include <stdint.h>
 
 #define I3_WEVCH_NEW 				((1) << 0)
 #define I3_WEVCH_FOCUS 				((1) << 1)
@@ -11,9 +11,9 @@ typedef int i3_connection_t;
 typedef struct i3_window_event i3_window_event_t;
 
 struct i3_window_event {
-	i32 change;
-	i32 width;
-	i32 height;
+	int32_t change;
+	int32_t width;
+	int32_t height;
 };
 
 extern i3_connection_t

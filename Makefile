@@ -17,8 +17,7 @@ OBJ = ${SRC:.c=.o}
 all: autolayout
 
 ${OBJ}: src/i3.h \
-		src/debug.h \
-		src/numdef.h
+		src/debug.h
 
 autolayout: ${OBJ}
 	@${CC} -o $@ ${OBJ} ${LDFLAGS}

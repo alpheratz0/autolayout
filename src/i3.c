@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/un.h>
@@ -9,27 +10,26 @@
 #include <sys/types.h>
 #include <json-c/json.h>
 
-#include "numdef.h"
 #include "debug.h"
 #include "i3.h"
 
 #define I3_MAGIC 				("i3-ipc")
 #define I3_MAGIC_LENGTH 		(sizeof(I3_MAGIC) - 1)
 #define I3_IMSG_SIZE_OFFSET     (I3_MAGIC_LENGTH)
-#define I3_IMSG_TYPE_OFFSET     (I3_MAGIC_LENGTH + sizeof(i32))
-#define I3_IMSG_HDR_SIZE        (I3_MAGIC_LENGTH + sizeof(i32) * 2)
+#define I3_IMSG_TYPE_OFFSET     (I3_MAGIC_LENGTH + sizeof(int32_t))
+#define I3_IMSG_HDR_SIZE        (I3_MAGIC_LENGTH + sizeof(int32_t) * 2)
 #define I3_MSG_TYPE_COMMAND 	(0)
 #define I3_MSG_TYPE_SUBSCRIBE 	(2)
 #define I3_WINDOW_EVENT 		(3)
-#define I3_EVENT_MASK_BIT 		(1 << (sizeof(i32) * 8 - 1))
+#define I3_EVENT_MASK_BIT 		(1 << (sizeof(int32_t) * 8 - 1))
 #define SUN_MAX_PATH_LENGTH 	(sizeof(((struct sockaddr_un *)(0))->sun_path))
 
 typedef struct i3_incoming_message_header i3_incoming_message_header_t;
 
 struct i3_incoming_message_header {
 	char magic[I3_MAGIC_LENGTH];
-	i32 size;
-	i32 type;
+	int32_t size;
+	int32_t type;
 };
 
 static char *
@@ -140,15 +140,15 @@ i3_connect(void)
 }
 
 static void
-i3_send(i3_connection_t conn, i32 type, const char *payload)
+i3_send(i3_connection_t conn, int32_t type, const char *payload)
 {
-	u8 *message;
-	i32 payload_length;
+	uint8_t *message;
+	int32_t payload_length;
 	size_t message_length, position;
 
 	position = 0;
-	payload_length = (i32)(strlen(payload));
-	message_length = I3_MAGIC_LENGTH + sizeof(i32) * 2 + payload_length;
+	payload_length = (int32_t)(strlen(payload));
+	message_length = I3_MAGIC_LENGTH + sizeof(int32_t) * 2 + payload_length;
 
 	if (!(message = malloc(message_length))) {
 		die("error while calling malloc, no memory available");
@@ -157,11 +157,11 @@ i3_send(i3_connection_t conn, i32 type, const char *payload)
 	memcpy(message + position, I3_MAGIC, I3_MAGIC_LENGTH);
 	position += I3_MAGIC_LENGTH;
 
-	memcpy(message + position, &payload_length, sizeof(i32));
-	position += sizeof(i32);
+	memcpy(message + position, &payload_length, sizeof(int32_t));
+	position += sizeof(int32_t);
 
-	memcpy(message + position, &type, sizeof(i32));
-	position += sizeof(i32);
+	memcpy(message + position, &type, sizeof(int32_t));
+	position += sizeof(int32_t);
 
 	memcpy(message + position, payload, payload_length);
 
@@ -175,7 +175,7 @@ i3_send(i3_connection_t conn, i32 type, const char *payload)
 static i3_incoming_message_header_t *
 i3_get_incoming_message_header(i3_connection_t conn)
 {
-	u8 buff[I3_IMSG_HDR_SIZE];
+	uint8_t buff[I3_IMSG_HDR_SIZE];
 	ssize_t read_count;
 	size_t total_read_count, left_to_read;
 	i3_incoming_message_header_t *hdr;
@@ -224,13 +224,13 @@ i3_get_incoming_message_header(i3_connection_t conn)
 	return hdr;
 }
 
-static u8 *
-i3_get_incoming_message(i3_connection_t conn, i32 type)
+static uint8_t *
+i3_get_incoming_message(i3_connection_t conn, int32_t type)
 {
 	ssize_t read_count;
 	size_t total_read_count, left_to_read;
 	i3_incoming_message_header_t *header;
-	u8 *message;
+	uint8_t *message;
 
 	header = i3_get_incoming_message_header(conn);
 
@@ -273,7 +273,7 @@ i3_get_incoming_message(i3_connection_t conn, i32 type)
 extern void
 i3_run_command(i3_connection_t conn, const char *cmd)
 {
-	u8 *message;
+	uint8_t *message;
 
 	i3_send(conn, I3_MSG_TYPE_COMMAND, cmd);
 	message = i3_get_incoming_message(conn, I3_MSG_TYPE_COMMAND);
@@ -288,7 +288,7 @@ i3_run_command(i3_connection_t conn, const char *cmd)
 extern void
 i3_subscribe_to_window_events(i3_connection_t conn)
 {
-	u8 *message;
+	uint8_t *message;
 
 	i3_send(conn, I3_MSG_TYPE_SUBSCRIBE, "[ \"window\" ]");
 	message = i3_get_incoming_message(conn, I3_MSG_TYPE_SUBSCRIBE);
@@ -300,7 +300,7 @@ i3_subscribe_to_window_events(i3_connection_t conn)
 	free(message);
 }
 
-static i32
+static int32_t
 i3_wev_from_str(const char *str)
 {
 	if (strcmp(str, "new") == 0) 	return I3_WEVCH_NEW;
@@ -327,7 +327,7 @@ i3_wait_for_window_event(i3_connection_t conn)
 
 	*/
 
-	u8 *raw_event;
+	uint8_t *raw_event;
 	struct json_object *root, *change, *container, *window_rect, *width, *height;
 	i3_window_event_t *ev;
 
