@@ -3,7 +3,7 @@ PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
 LDLIBS = -ljson-c
 LDFLAGS = -s ${LDLIBS}
-INCS = -I. -I/usr/include
+INCS = -I/usr/include
 CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${INCS} -D_DEFAULT_SOURCE \
 		 -D_XOPEN_SOURCE=500 -DVERSION="\"${VERSION}\""
 CC = cc
