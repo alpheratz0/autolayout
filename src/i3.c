@@ -13,16 +13,16 @@
 #include "debug.h"
 #include "i3.h"
 
-#define I3_MAGIC 				("i3-ipc")
-#define I3_MAGIC_LENGTH 		(sizeof(I3_MAGIC) - 1)
+#define I3_MAGIC                ("i3-ipc")
+#define I3_MAGIC_LENGTH         (sizeof(I3_MAGIC) - 1)
 #define I3_IMSG_SIZE_OFFSET     (I3_MAGIC_LENGTH)
 #define I3_IMSG_TYPE_OFFSET     (I3_MAGIC_LENGTH + sizeof(int32_t))
 #define I3_IMSG_HDR_SIZE        (I3_MAGIC_LENGTH + sizeof(int32_t) * 2)
-#define I3_MSG_TYPE_COMMAND 	(0)
-#define I3_MSG_TYPE_SUBSCRIBE 	(2)
-#define I3_WINDOW_EVENT 		(3)
-#define I3_EVENT_MASK_BIT 		(1 << (sizeof(int32_t) * 8 - 1))
-#define SUN_MAX_PATH_LENGTH 	(sizeof(((struct sockaddr_un *)(0))->sun_path))
+#define I3_MSG_TYPE_COMMAND     (0)
+#define I3_MSG_TYPE_SUBSCRIBE   (2)
+#define I3_WINDOW_EVENT         (3)
+#define I3_EVENT_MASK_BIT       (1 << (sizeof(int32_t) * 8 - 1))
+#define SUN_MAX_PATH_LENGTH     (sizeof(((struct sockaddr_un *)(0))->sun_path))
 
 typedef struct i3_incoming_message_header i3_incoming_message_header_t;
 
