@@ -69,9 +69,9 @@ match_opt(const char *in, const char *sh, const char *lo)
 static void
 usage(void)
 {
-	puts("Usage: autolayout [ -dhv ]");
+	puts("Usage: autolayout [ -bhv ]");
 	puts("Options are:");
-	print_opt("-d", "--daemon", "run in the background");
+	print_opt("-b", "--background", "run in the background");
 	print_opt("-h", "--help", "display this message and exit");
 	print_opt("-v", "--version", "display the program version");
 	exit(0);
@@ -147,7 +147,7 @@ main(int argc, char **argv)
 	--argc; ++argv;
 
 	if (argc > 0) {
-		if (match_opt(*argv, "-d", "--daemon")) daemonize();
+		if (match_opt(*argv, "-b", "--background")) daemonize();
 		else if (match_opt(*argv, "-h", "--help")) usage();
 		else if (match_opt(*argv, "-v", "--version")) version();
 		else if (**argv == '-') dief("invalid option %s", *argv);
