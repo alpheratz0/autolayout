@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-#define I3_WEVCH_NEW 				((1) << 0)
-#define I3_WEVCH_FOCUS 				((1) << 1)
-#define I3_WEVCH_MOVE 				((1) << 2)
+#define I3_WEVCH_NEW                ((1) << 0)
+#define I3_WEVCH_FOCUS              ((1) << 1)
+#define I3_WEVCH_MOVE               ((1) << 2)
 
 typedef int i3_connection_t;
 typedef struct i3_window_event i3_window_event_t;
