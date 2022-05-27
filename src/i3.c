@@ -102,7 +102,8 @@ i3_get_socket_path(void)
 	switch (siginfo.si_code) {
 		case CLD_EXITED:
 			if (siginfo.si_status != 0) {
-				dief("i3 --get-socketpath failed with exit code: %d", siginfo.si_status);
+				dief("i3 --get-socketpath failed with exit code: %d",
+						siginfo.si_status);
 			}
 			break;
 		case CLD_KILLED:
@@ -237,7 +238,8 @@ i3_get_incoming_message(i3_connection_t conn, int32_t type)
 	}
 
 	if (header->type != type) {
-		dief("invalid message type, expected: %d, received: %d", type, header->type);
+		dief("invalid message type, expected: %d, received: %d", type,
+				header->type);
 	}
 
 	total_read_count = 0;
