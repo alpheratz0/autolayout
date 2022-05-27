@@ -72,7 +72,7 @@ i3_get_socket_path(void)
 		dief("close failed: %s", strerror(errno));
 	}
 
-	if (!(path = malloc(SUN_MAX_PATH_LENGTH))) {
+	if (NULL == (path = malloc(SUN_MAX_PATH_LENGTH))) {
 		die("error while calling malloc, no memory available");
 	}
 
@@ -150,7 +150,7 @@ i3_send(i3_connection_t conn, int32_t type, const char *payload)
 	payload_length = (int32_t)(strlen(payload));
 	message_length = I3_MAGIC_LENGTH + sizeof(int32_t) * 2 + payload_length;
 
-	if (!(message = malloc(message_length))) {
+	if (NULL == (message = malloc(message_length))) {
 		die("error while calling malloc, no memory available");
 	}
 
@@ -188,7 +188,7 @@ i3_get_incoming_message_header(i3_connection_t conn)
 
 	left_to_read = I3_IMSG_HDR_SIZE;
 
-	if (!(hdr = malloc(sizeof(i3_incoming_message_header_t)))) {
+	if (NULL == (hdr = malloc(sizeof(i3_incoming_message_header_t)))) {
 		die("error while calling malloc, no memory available");
 	}
 
@@ -244,7 +244,7 @@ i3_get_incoming_message(i3_connection_t conn, int32_t type)
 	left_to_read = header->size;
 	free(header);
 
-	if (!(message = malloc(left_to_read + 1))) {
+	if (NULL == (message = malloc(left_to_read + 1))) {
 		die("error while calling malloc, no memory available");
 	}
 
@@ -341,7 +341,7 @@ i3_wait_for_window_event(i3_connection_t conn)
 	json_object_object_get_ex(window_rect, "width", &width);
 	json_object_object_get_ex(window_rect, "height", &height);
 
-	if (!(ev = malloc(sizeof(i3_window_event_t)))) {
+	if (NULL == (ev = malloc(sizeof(i3_window_event_t)))) {
 		die("error while calling malloc, no memory available");
 	}
 
