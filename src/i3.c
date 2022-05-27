@@ -182,11 +182,9 @@ i3_get_incoming_message_header(i3_connection_t conn)
 
 	total_read_count = 0;
 
-	/*
-	   with tcc sizeof(i3_incoming_message_header_t) returns 16 even
+	/* with tcc sizeof(i3_incoming_message_header_t) returns 16 even
 	   with __attribute__((packed)), so this is a workaround to make
-	   the binary compiled by tcc work
-	*/
+	   the binary produced by tcc work */
 
 	left_to_read = I3_IMSG_HDR_SIZE;
 
