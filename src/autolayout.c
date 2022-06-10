@@ -143,23 +143,21 @@ daemonize(void)
 int
 main(int argc, char **argv)
 {
-	/* skip program name */
-	--argc; ++argv;
+	/* create two different connections (to prevent race conditions), */
+	/* one for the commands and other for the events */
+	/* https://i3wm.org/docs/ipc.html#events */
+	i3_connection_t ccmd, cevt;
 
-	if (argc > 0) {
+	/* this will hold the neccessary information about a window event */
+	i3_window_event_t *ev;
+
+	if (++argv, --argc > 0) {
 		if (match_opt(*argv, "-b", "--background")) daemonize();
 		else if (match_opt(*argv, "-h", "--help")) usage();
 		else if (match_opt(*argv, "-v", "--version")) version();
 		else if (**argv == '-') dief("invalid option %s", *argv);
 		else dief("unexpected argument: %s", *argv);
 	}
-
-	i3_window_event_t *ev;
-
-	/* create two different connections (to prevent race conditions), */
-	/* one for the commands and other for the events */
-	/* https://i3wm.org/docs/ipc.html#events */
-	i3_connection_t ccmd, cevt;
 
 	ccmd = i3_connect();
 	cevt = i3_connect();
