@@ -2,6 +2,10 @@ autolayout
 ==========
 automatically change the layout of i3 based on the width and height of the focused window, preview: https://i.imgur.com/bq8Px5a.mp4
 
+note
+====
+this program has been tested only on a little-endian machine
+
 build
 =====
 in order to build autolayout you will need json-c headers
