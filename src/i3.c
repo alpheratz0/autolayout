@@ -265,31 +265,44 @@ i3_get_incoming_message(i3_connection_t conn, int32_t type)
 extern void
 i3_run_command(i3_connection_t conn, const char *cmd)
 {
-	uint8_t *message;
+	uint8_t *raw_reply;
+	struct json_object *root, *reply, *success;
 
 	i3_send(conn, I3_MSG_TYPE_COMMAND, cmd);
-	message = i3_get_incoming_message(conn, I3_MSG_TYPE_COMMAND);
+	raw_reply = i3_get_incoming_message(conn, I3_MSG_TYPE_COMMAND);
+	root = json_tokener_parse((char *)(raw_reply));
 
-	if (strncmp((char *)(message), "[{\"success\":true}]", 18) != 0) {
+	free(raw_reply);
+
+	reply = json_object_array_get_idx(root, 0);
+	json_object_object_get_ex(reply, "success", &success);
+
+	if (!(json_object_get_boolean(success))) {
 		dief("failed to run command: %s", cmd);
 	}
 
-	free(message);
+	json_object_put(root);
 }
 
 extern void
 i3_subscribe_to_window_events(i3_connection_t conn)
 {
-	uint8_t *message;
+	uint8_t *raw_reply;
+	struct json_object *reply, *success;
 
 	i3_send(conn, I3_MSG_TYPE_SUBSCRIBE, "[ \"window\" ]");
-	message = i3_get_incoming_message(conn, I3_MSG_TYPE_SUBSCRIBE);
+	raw_reply = i3_get_incoming_message(conn, I3_MSG_TYPE_SUBSCRIBE);
+	reply = json_tokener_parse((char *)(raw_reply));
 
-	if (strncmp((char *)(message), "{\"success\":true}", 16) != 0) {
+	free(raw_reply);
+
+	json_object_object_get_ex(reply, "success", &success);
+
+	if (!(json_object_get_boolean(success))) {
 		die("failed to subscribe to window events");
 	}
 
-	free(message);
+	json_object_put(reply);
 }
 
 static int32_t
