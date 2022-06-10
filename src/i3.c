@@ -209,15 +209,8 @@ i3_get_incoming_message_header(i3_connection_t conn)
 
 	memcpy(hdr->magic, buff, I3_MAGIC_LENGTH);
 
-	hdr->size = buff[I3_IMSG_SIZE_OFFSET] |
-				buff[I3_IMSG_SIZE_OFFSET + 1] << 8 |
-				buff[I3_IMSG_SIZE_OFFSET + 2] << 16 |
-				buff[I3_IMSG_SIZE_OFFSET + 3] << 24;
-
-	hdr->type = buff[I3_IMSG_TYPE_OFFSET] |
-				buff[I3_IMSG_TYPE_OFFSET + 1] << 8 |
-				buff[I3_IMSG_TYPE_OFFSET + 2] << 16 |
-				buff[I3_IMSG_TYPE_OFFSET + 3] << 24;
+	hdr->size = *((int32_t *)(&buff[I3_IMSG_SIZE_OFFSET]));
+	hdr->type = *((int32_t *)(&buff[I3_IMSG_TYPE_OFFSET]));
 
 	return hdr;
 }
