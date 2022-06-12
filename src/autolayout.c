@@ -93,7 +93,7 @@ daemonize(void)
 
 	getrlimit(RLIMIT_NOFILE, &limits);
 
-	while (--limits.rlim_max > 2) {
+	while (--limits.rlim_max > STDERR_FILENO) {
 		close((int)(limits.rlim_max));
 	}
 
