@@ -13,21 +13,28 @@
 #include "debug.h"
 #include "i3.h"
 
-#define I3_MAGIC                ("i3-ipc")
-#define I3_MAGIC_LENGTH         (sizeof(I3_MAGIC) - 1)
-#define I3_IMSG_SIZE_OFFSET     (I3_MAGIC_LENGTH)
-#define I3_IMSG_TYPE_OFFSET     (I3_MAGIC_LENGTH + sizeof(int32_t))
-#define I3_IMSG_HDR_SIZE        (I3_MAGIC_LENGTH + sizeof(int32_t) * 2)
+/* util message header macros */
+#define I3_HDR_MAGIC            ("i3-ipc")
+#define I3_HDR_MAGIC_LENGTH     (sizeof(I3_HDR_MAGIC) - 1)
+#define I3_HDR_SIZE_OFFSET      (I3_HDR_MAGIC_LENGTH)
+#define I3_HDR_TYPE_OFFSET      (I3_HDR_MAGIC_LENGTH + sizeof(int32_t))
+#define I3_HDR_SIZE             (I3_HDR_MAGIC_LENGTH + sizeof(int32_t) * 2)
+
+/* message types */
 #define I3_MSG_TYPE_COMMAND     (0)
 #define I3_MSG_TYPE_SUBSCRIBE   (2)
+
+/* util event macros */
 #define I3_WINDOW_EVENT         (3)
 #define I3_EVENT_MASK_BIT       (1 << (sizeof(int32_t) * 8 - 1))
+
+/* unix socket max path length */
 #define SUN_MAX_PATH_LENGTH     (sizeof(((struct sockaddr_un *)(0))->sun_path))
 
 typedef struct i3_incoming_message_header i3_incoming_message_header_t;
 
 struct i3_incoming_message_header {
-	char magic[I3_MAGIC_LENGTH];
+	char magic[I3_HDR_MAGIC_LENGTH];
 	int32_t size;
 	int32_t type;
 };
@@ -149,14 +156,14 @@ i3_send(i3_connection_t conn, int32_t type, const char *payload)
 
 	position = 0;
 	payload_length = (int32_t)(strlen(payload));
-	message_length = I3_MAGIC_LENGTH + sizeof(int32_t) * 2 + payload_length;
+	message_length = I3_HDR_MAGIC_LENGTH + sizeof(int32_t) * 2 + payload_length;
 
 	if (NULL == (message = malloc(message_length))) {
 		die("error while calling malloc, no memory available");
 	}
 
-	memcpy(message + position, I3_MAGIC, I3_MAGIC_LENGTH);
-	position += I3_MAGIC_LENGTH;
+	memcpy(message + position, I3_HDR_MAGIC, I3_HDR_MAGIC_LENGTH);
+	position += I3_HDR_MAGIC_LENGTH;
 
 	memcpy(message + position, &payload_length, sizeof(int32_t));
 	position += sizeof(int32_t);
@@ -176,7 +183,7 @@ i3_send(i3_connection_t conn, int32_t type, const char *payload)
 static i3_incoming_message_header_t *
 i3_get_incoming_message_header(i3_connection_t conn)
 {
-	uint8_t buff[I3_IMSG_HDR_SIZE];
+	uint8_t buff[I3_HDR_SIZE];
 	ssize_t read_count;
 	size_t total_read_count, left_to_read;
 	i3_incoming_message_header_t *hdr;
@@ -186,7 +193,7 @@ i3_get_incoming_message_header(i3_connection_t conn)
 	/* with tcc sizeof(i3_incoming_message_header_t) returns 16 even */
 	/* with __attribute__((packed)), so this is a workaround to make */
 	/* the binary produced by tcc work */
-	left_to_read = I3_IMSG_HDR_SIZE;
+	left_to_read = I3_HDR_SIZE;
 
 	if (NULL == (hdr = malloc(sizeof(i3_incoming_message_header_t)))) {
 		die("error while calling malloc, no memory available");
@@ -207,10 +214,10 @@ i3_get_incoming_message_header(i3_connection_t conn)
 		left_to_read -= read_count;
 	}
 
-	memcpy(hdr->magic, buff, I3_MAGIC_LENGTH);
+	memcpy(hdr->magic, buff, I3_HDR_MAGIC_LENGTH);
 
-	hdr->size = *((int32_t *)(&buff[I3_IMSG_SIZE_OFFSET]));
-	hdr->type = *((int32_t *)(&buff[I3_IMSG_TYPE_OFFSET]));
+	hdr->size = *((int32_t *)(&buff[I3_HDR_SIZE_OFFSET]));
+	hdr->type = *((int32_t *)(&buff[I3_HDR_TYPE_OFFSET]));
 
 	return hdr;
 }
@@ -225,7 +232,7 @@ i3_get_incoming_message(i3_connection_t conn, int32_t type)
 
 	header = i3_get_incoming_message_header(conn);
 
-	if (strncmp(header->magic, I3_MAGIC, I3_MAGIC_LENGTH) != 0) {
+	if (strncmp(header->magic, I3_HDR_MAGIC, I3_HDR_MAGIC_LENGTH) != 0) {
 		die("corrupted i3 message");
 	}
 
