@@ -14,22 +14,22 @@
 #include "i3.h"
 
 /* util message header macros */
-#define I3_HDR_MAGIC            ("i3-ipc")
-#define I3_HDR_MAGIC_LENGTH     (sizeof(I3_HDR_MAGIC) - 1)
-#define I3_HDR_SIZE_OFFSET      (I3_HDR_MAGIC_LENGTH)
-#define I3_HDR_TYPE_OFFSET      (I3_HDR_MAGIC_LENGTH + sizeof(int32_t))
-#define I3_HDR_SIZE             (I3_HDR_MAGIC_LENGTH + sizeof(int32_t) * 2)
+#define I3_HDR_MAGIC               ("i3-ipc")
+#define I3_HDR_MAGIC_LENGTH        (sizeof(I3_HDR_MAGIC) - 1)
+#define I3_HDR_SIZE_OFFSET         (I3_HDR_MAGIC_LENGTH)
+#define I3_HDR_TYPE_OFFSET         (I3_HDR_MAGIC_LENGTH + sizeof(int32_t))
+#define I3_HDR_SIZE                (I3_HDR_MAGIC_LENGTH + sizeof(int32_t) * 2)
+
+/* event mask bit (highest bit set) */
+#define I3_EVENT_MASK_BIT          (1 << (sizeof(int32_t) * 8 - 1))
 
 /* message types */
-#define I3_MSG_TYPE_COMMAND     (0)
-#define I3_MSG_TYPE_SUBSCRIBE   (2)
-
-/* util event macros */
-#define I3_WINDOW_EVENT         (3)
-#define I3_EVENT_MASK_BIT       (1 << (sizeof(int32_t) * 8 - 1))
+#define I3_MSG_TYPE_COMMAND        (0)
+#define I3_MSG_TYPE_SUBSCRIBE      (2)
+#define I3_MSG_TYPE_WINDOW_EVENT   (3 | I3_EVENT_MASK_BIT)
 
 /* unix socket max path length */
-#define SUN_MAX_PATH_LENGTH     (sizeof(((struct sockaddr_un *)(0))->sun_path))
+#define SUN_MAX_PATH_LENGTH        (sizeof(((struct sockaddr_un *)(0))->sun_path))
 
 typedef struct i3_incoming_message_header i3_incoming_message_header_t;
 
@@ -344,7 +344,7 @@ i3_wait_for_window_event(i3_connection_t conn)
 	i3_window_event_t *ev;
 
 	/* parse the full event json */
-	raw_event = i3_get_incoming_message(conn, I3_EVENT_MASK_BIT | I3_WINDOW_EVENT);
+	raw_event = i3_get_incoming_message(conn, I3_MSG_TYPE_WINDOW_EVENT);
 	root = json_tokener_parse((char *)(raw_event));
 	free(raw_event);
 
