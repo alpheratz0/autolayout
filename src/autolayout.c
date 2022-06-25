@@ -41,7 +41,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -59,11 +58,10 @@ print_opt(const char *sh, const char *lo, const char *desc)
 	printf("%7s | %-25s %s\n", sh, lo, desc);
 }
 
-static bool
+static int
 match_opt(const char *in, const char *sh, const char *lo)
 {
-	return (strcmp(in, sh) == 0) ||
-		   (strcmp(in, lo) == 0);
+	return (strcmp(in, sh) == 0) || (strcmp(in, lo) == 0);
 }
 
 static void
@@ -87,7 +85,7 @@ version(void)
 static void
 daemonize(void)
 {
-	int dnfd;
+	int dnfd, s;
 	sigset_t ss;
 	struct rlimit limits = { 0 };
 
@@ -97,7 +95,7 @@ daemonize(void)
 		close((int)(limits.rlim_max));
 	}
 
-	for (int s = 1; s < _NSIG; ++s) {
+	for (s = 1; s < _NSIG; ++s) {
 		signal(s, SIG_DFL);
 	}
 
@@ -109,7 +107,7 @@ daemonize(void)
 			dief("fork failed: %s", strerror(errno));
 			break;
 		case 0:
-			if (setsid() == -1) {
+			if (setsid() < 0) {
 				dief("setsid failed: %s", strerror(errno));
 			}
 			break;
@@ -126,7 +124,7 @@ daemonize(void)
 			umask(0);
 			chdir("/");
 
-			if ((dnfd = open("/dev/null", O_RDWR)) == -1) {
+			if ((dnfd = open("/dev/null", O_RDWR)) < 0) {
 				dief("open failed: %s", strerror(errno));
 			}
 
@@ -146,10 +144,10 @@ main(int argc, char **argv)
 	/* create two different connections (to prevent race conditions), */
 	/* one for the commands and other for the events */
 	/* https://i3wm.org/docs/ipc.html#events */
-	i3_connection_t ccmd, cevt;
+	i3_connection ccmd, cevt;
 
 	/* this will hold the neccessary information about a window event */
-	i3_window_event_t *ev;
+	struct i3_window_event *ev;
 
 	if (++argv, --argc > 0) {
 		if (match_opt(*argv, "-b", "--background")) daemonize();

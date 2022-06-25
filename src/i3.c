@@ -48,13 +48,23 @@
 /* unix socket max path length */
 #define SUN_MAX_PATH_LENGTH        (sizeof(((struct sockaddr_un *)(0))->sun_path))
 
-typedef struct i3_incoming_message_header i3_incoming_message_header_t;
-
 struct i3_incoming_message_header {
 	char magic[I3_HDR_MAGIC_LENGTH];
 	int32_t size;
 	int32_t type;
 };
+
+static void *
+xmalloc(size_t size)
+{
+	void *p;
+
+	if (NULL == (p = malloc(size))) {
+		die("error while calling malloc, no memory available");
+	}
+
+	return p;
+}
 
 static char *
 i3_get_socket_path(void)
@@ -68,16 +78,16 @@ i3_get_socket_path(void)
 	size_t left_to_read;
 	size_t total_read_count;
 
-	if (pipe(fd) == -1) {
+	if (pipe(fd) < 0) {
 		dief("pipe failed: %s", strerror(errno));
 	}
 
-	if ((pid = fork()) == -1) {
+	if ((pid = fork()) < 0) {
 		dief("fork failed: %s", strerror(errno));
 	}
 
 	if (pid == 0) {
-		if (close(fd[0]) == -1) {
+		if (close(fd[0]) < 0) {
 			dief("close failed: %s", strerror(errno));
 		}
 
@@ -92,20 +102,17 @@ i3_get_socket_path(void)
 		}
 	}
 
-	if (close(fd[1]) == -1) {
+	if (close(fd[1]) < 0) {
 		dief("close failed: %s", strerror(errno));
-	}
-
-	if (NULL == (path = malloc(SUN_MAX_PATH_LENGTH))) {
-		die("error while calling malloc, no memory available");
 	}
 
 	read_count = -1;
 	total_read_count = 0;
 	left_to_read = SUN_MAX_PATH_LENGTH;
+	path = xmalloc(SUN_MAX_PATH_LENGTH);
 
 	while (read_count != 0) {
-		if ((read_count = read(fd[0], path + total_read_count, left_to_read)) == -1) {
+		if ((read_count = read(fd[0], path + total_read_count, left_to_read)) < 0) {
 			dief("read failed: %s", strerror(errno));
 		}
 
@@ -119,7 +126,7 @@ i3_get_socket_path(void)
 
 	memset(&siginfo, 0, sizeof(siginfo));
 
-	if (waitid(P_PID, pid, &siginfo, WEXITED) == -1) {
+	if (waitid(P_PID, pid, &siginfo, WEXITED) < 0) {
 		dief("waitid failed: %s", strerror(errno));
 	}
 
@@ -139,10 +146,10 @@ i3_get_socket_path(void)
 	return path;
 }
 
-extern i3_connection_t
+extern i3_connection
 i3_connect(void)
 {
-	i3_connection_t conn;
+	i3_connection conn;
 	char *sock_path;
 	struct sockaddr_un sock_addr;
 
@@ -165,7 +172,7 @@ i3_connect(void)
 }
 
 static void
-i3_send(i3_connection_t conn, int32_t type, const char *payload)
+i3_send(i3_connection conn, int32_t type, const char *payload)
 {
 	uint8_t *message;
 	int32_t payload_length;
@@ -174,10 +181,7 @@ i3_send(i3_connection_t conn, int32_t type, const char *payload)
 	position = 0;
 	payload_length = (int32_t)(strlen(payload));
 	message_length = I3_HDR_MAGIC_LENGTH + sizeof(int32_t) * 2 + payload_length;
-
-	if (NULL == (message = malloc(message_length))) {
-		die("error while calling malloc, no memory available");
-	}
+	message = xmalloc(message_length);
 
 	memcpy(message + position, I3_HDR_MAGIC, I3_HDR_MAGIC_LENGTH);
 	position += I3_HDR_MAGIC_LENGTH;
@@ -190,34 +194,30 @@ i3_send(i3_connection_t conn, int32_t type, const char *payload)
 
 	memcpy(message + position, payload, payload_length);
 
-	if (write(conn, message, message_length) == -1) {
+	if (write(conn, message, message_length) < 0) {
 		dief("write failed: %s", strerror(errno));
 	}
 
 	free(message);
 }
 
-static i3_incoming_message_header_t *
-i3_get_incoming_message_header(i3_connection_t conn)
+static struct i3_incoming_message_header *
+i3_get_incoming_message_header(i3_connection conn)
 {
 	uint8_t buff[I3_HDR_SIZE];
 	ssize_t read_count;
 	size_t total_read_count, left_to_read;
-	i3_incoming_message_header_t *hdr;
-
-	total_read_count = 0;
+	struct i3_incoming_message_header *hdr;
 
 	/* with tcc sizeof(i3_incoming_message_header_t) returns 16 even */
 	/* with __attribute__((packed)), so this is a workaround to make */
 	/* the binary produced by tcc work */
 	left_to_read = I3_HDR_SIZE;
-
-	if (NULL == (hdr = malloc(sizeof(i3_incoming_message_header_t)))) {
-		die("error while calling malloc, no memory available");
-	}
+	total_read_count = 0;
+	hdr = xmalloc(sizeof(struct i3_incoming_message_header));
 
 	while (left_to_read > 0) {
-		if ((read_count = read(conn, &buff[total_read_count], left_to_read)) == -1) {
+		if ((read_count = read(conn, &buff[total_read_count], left_to_read)) < 0) {
 			dief("error while reading from socket: %s", strerror(errno));
 		}
 
@@ -240,34 +240,32 @@ i3_get_incoming_message_header(i3_connection_t conn)
 }
 
 static uint8_t *
-i3_get_incoming_message(i3_connection_t conn, int32_t type)
+i3_get_incoming_message(i3_connection conn, int32_t type)
 {
 	ssize_t read_count;
 	size_t total_read_count, left_to_read;
-	i3_incoming_message_header_t *header;
+	struct i3_incoming_message_header *hdr;
 	uint8_t *message;
 
-	header = i3_get_incoming_message_header(conn);
+	hdr = i3_get_incoming_message_header(conn);
 
-	if (strncmp(header->magic, I3_HDR_MAGIC, I3_HDR_MAGIC_LENGTH) != 0) {
+	if (strncmp(hdr->magic, I3_HDR_MAGIC, I3_HDR_MAGIC_LENGTH) != 0) {
 		die("corrupted i3 message");
 	}
 
-	if (header->type != type) {
+	if (hdr->type != type) {
 		dief("invalid message type, expected: %d, received: %d", type,
-				header->type);
+				hdr->type);
 	}
 
 	total_read_count = 0;
-	left_to_read = header->size;
-	free(header);
+	left_to_read = hdr->size;
+	message = xmalloc(hdr->size + 1);
 
-	if (NULL == (message = malloc(left_to_read + 1))) {
-		die("error while calling malloc, no memory available");
-	}
+	free(hdr);
 
 	while (left_to_read > 0) {
-		if ((read_count = read(conn, message + total_read_count, left_to_read)) == -1) {
+		if ((read_count = read(conn, message + total_read_count, left_to_read)) < 0) {
 			dief("error while reading from socket: %s", strerror(errno));
 		}
 
@@ -287,7 +285,7 @@ i3_get_incoming_message(i3_connection_t conn, int32_t type)
 }
 
 extern void
-i3_run_command(i3_connection_t conn, const char *cmd)
+i3_run_command(i3_connection conn, const char *cmd)
 {
 	uint8_t *raw_reply;
 	struct json_object *root, *reply, *success;
@@ -309,7 +307,7 @@ i3_run_command(i3_connection_t conn, const char *cmd)
 }
 
 extern void
-i3_subscribe_to_window_events(i3_connection_t conn)
+i3_subscribe_to_window_events(i3_connection conn)
 {
 	uint8_t *raw_reply;
 	struct json_object *reply, *success;
@@ -339,8 +337,8 @@ i3_wev_from_str(const char *str)
 	return 0;
 }
 
-extern i3_window_event_t *
-i3_wait_for_window_event(i3_connection_t conn)
+extern struct i3_window_event *
+i3_wait_for_window_event(i3_connection conn)
 {
 
 	/*
@@ -358,7 +356,7 @@ i3_wait_for_window_event(i3_connection_t conn)
 
 	uint8_t *raw_event;
 	struct json_object *root, *change, *container, *window_rect, *width, *height;
-	i3_window_event_t *ev;
+	struct i3_window_event *ev;
 
 	/* parse the full event json */
 	raw_event = i3_get_incoming_message(conn, I3_MSG_TYPE_WINDOW_EVENT);
@@ -372,9 +370,7 @@ i3_wait_for_window_event(i3_connection_t conn)
 	json_object_object_get_ex(window_rect, "width", &width);
 	json_object_object_get_ex(window_rect, "height", &height);
 
-	if (NULL == (ev = malloc(sizeof(i3_window_event_t)))) {
-		die("error while calling malloc, no memory available");
-	}
+	ev = xmalloc(sizeof(struct i3_window_event));
 
 	ev->change = i3_wev_from_str(json_object_get_string(change));
 	ev->width = json_object_get_int(width);

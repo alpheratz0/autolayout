@@ -24,8 +24,7 @@
 #define I3_WEVCH_FOCUS              ((1) << 1)
 #define I3_WEVCH_MOVE               ((1) << 2)
 
-typedef int i3_connection_t;
-typedef struct i3_window_event i3_window_event_t;
+typedef int i3_connection;
 
 struct i3_window_event {
 	int32_t change;
@@ -33,16 +32,16 @@ struct i3_window_event {
 	int32_t height;
 };
 
-extern i3_connection_t
+extern i3_connection
 i3_connect(void);
 
 extern void
-i3_run_command(i3_connection_t conn, const char *cmd);
+i3_run_command(i3_connection conn, const char *cmd);
 
 extern void
-i3_subscribe_to_window_events(i3_connection_t conn);
+i3_subscribe_to_window_events(i3_connection conn);
 
-extern i3_window_event_t *
-i3_wait_for_window_event(i3_connection_t conn);
+extern struct i3_window_event *
+i3_wait_for_window_event(i3_connection conn);
 
 #endif
