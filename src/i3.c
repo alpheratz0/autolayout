@@ -209,9 +209,8 @@ i3_get_incoming_message_header(i3_connection conn)
 	size_t total_read_count, left_to_read;
 	struct i3_incoming_message_header *hdr;
 
-	/* with tcc sizeof(i3_incoming_message_header_t) returns 16 even */
-	/* with __attribute__((packed)), so this is a workaround to make */
-	/* the binary produced by tcc work */
+	/* tcc lacks support for structs with __attribute__((packed)) */
+	/* so it's not as simple as return (struct i3_incoming_message_header *)(buff) */
 	left_to_read = I3_HDR_SIZE;
 	total_read_count = 0;
 	hdr = xmalloc(sizeof(struct i3_incoming_message_header));
