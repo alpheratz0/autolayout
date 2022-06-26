@@ -74,7 +74,6 @@ i3_get_socket_path(void)
 	int fd[2];
 	pid_t pid;
 	char *path;
-	char *argv[3];
 	siginfo_t siginfo;
 	ssize_t read_count;
 	size_t left_to_read;
@@ -95,11 +94,7 @@ i3_get_socket_path(void)
 
 		dup2(fd[1], STDOUT_FILENO);
 
-		argv[0] = "i3";
-		argv[1] = "--get-socketpath";
-		argv[2] = NULL;
-
-		if (execvp(argv[0], argv) == -1) {
+		if (execlp("i3", "i3", "--get-socketpath", NULL) < 0) {
 			exit(127);
 		}
 	}
