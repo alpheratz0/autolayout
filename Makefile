@@ -1,11 +1,12 @@
 VERSION = 0.1.0
+
+CC      = cc
+CFLAGS  = -std=c99 -pedantic -Wall -Wextra -Os -DVERSION=\"${VERSION}\"
+LDLIBS  = -ljson-c
+LDFLAGS = -s ${LDLIBS}
+
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
-LDLIBS = -ljson-c
-LDFLAGS = -s ${LDLIBS}
-INCS = -I/usr/include
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -Os ${INCS} -DVERSION=\"${VERSION}\"
-CC = cc
 
 SRC = src/autolayout.c \
 	  src/i3.c \
