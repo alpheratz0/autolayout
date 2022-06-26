@@ -158,7 +158,7 @@ i3_connect(void)
 	sock_addr.sun_family = AF_UNIX;
 	memcpy(&sock_addr.sun_path, sock_path, strlen(sock_path));
 
-	if (connect(conn, (struct sockaddr *)(&sock_addr), sizeof(sock_addr)) != 0) {
+	if (connect(conn, (struct sockaddr *)(&sock_addr), sizeof(sock_addr)) < 0) {
 		free(sock_path);
 		dief("failed to connect to unix socket: %s", strerror(errno));
 	}
