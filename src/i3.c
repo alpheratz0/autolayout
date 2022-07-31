@@ -94,7 +94,7 @@ i3_get_socket_path(void)
 
 		dup2(fd[1], STDOUT_FILENO);
 
-		if (execlp("i3", "i3", "--get-socketpath", NULL) < 0) {
+		if (execlp("i3", "i3", "--get-socketpath", (char *)(NULL)) < 0) {
 			exit(127);
 		}
 	}
