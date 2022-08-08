@@ -22,6 +22,6 @@ extern void
 die(const char *err);
 
 extern void
-dief(const char *err, ...);
+dief(const char *fmt, ...);
 
 #endif
