@@ -1,38 +1,32 @@
-.TH AUTOLAYOUT 1 "June 10, 2022"
-.SH NAME
-autolayout \- automatically change the layout of i3 based on the width and height of the focused window.
-.SH SYNOPSIS
-\fBautolayout\fP [ -bhv ]
-.SH OPTIONS
-.TP
-\fB\-b\fR, \fB\-\-background\fR
+.Dd August 8, 2022
+.Dt AUTOLAYOUT 1
+.Sh NAME
+.Nm autolayout
+.Nd automatically change the layout of i3 based on the width and height of the focused window
+.Sh SYNOPSIS
+.Nm
+.Op Fl bhv
+.Sh DESCRIPTION
+The
+.Nm
+utility changes the i3 layout when the focused window changes.
+.Sh OPTIONS
+.Bl -tag -width indent
+.It Fl b
 run autolayout in the background
-.TP
-\fB\-h\fR, \fB\-\-help\fR
-show the help message and exit
-.TP
-\fB\-v\fR, \fB\-\-version\fR
+.It Fl h
+show usage
+.It Fl v
 display the program version
-.SH CONFIGURATION
-.TP
-\fBadd this line to your i3 configuration file to start autolayout when i3 starts\fR
-exec_always --no-startup-id autolayout --background
-.SH EXIT STATUS
-.TP
-\fB0\fR
-the program terminated successfully
-.TP
-\fB1\fR
-an error occurred
-.SH AUTHOR
-Written by alpheratz0.
-.SH COPYRIGHT
-Copyright \(co 2022 <alpheratz99@protonmail.com>
-.br
-License GPLv2.0: GNU GPL version 2.0 <https://gnu.org/licenses/old-licenses/gpl-2.0.en.html>.
-.br
-This is free software: you are free to change and redistribute it.
-.br
-There is NO WARRANTY, to the extent permitted by law.
-.SH BUGS
+.El
+.Sh CONFIGURATION
+.Bl -tag -width indent
+.It add this line to your i3 configuration file to start autolayout when i3 starts
+exec_always --no-startup-id autolayout -b
+.El
+.Sh SEE ALSO
+.Xr i3 1
+.Sh AUTHORS
+.An alpheratz0 Aq Mt alpheratz99@protonmail.com
+.Sh BUGS
 https://github.com/alpheratz0/autolayout/issues
