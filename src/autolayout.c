@@ -60,20 +60,10 @@ print_opt(const char *sh, const char *lo, const char *desc)
 	printf("%7s | %-25s %s\n", sh, lo, desc);
 }
 
-static int
-match_opt(const char *in, const char *sh, const char *lo)
-{
-	return (strcmp(in, sh) == 0) || (strcmp(in, lo) == 0);
-}
-
 static void
 usage(void)
 {
-	puts("Usage: autolayout [ -bhv ]");
-	puts("Options are:");
-	print_opt("-b", "--background", "run in the background");
-	print_opt("-h", "--help", "display this message and exit");
-	print_opt("-v", "--version", "display the program version");
+	puts("usage: autolayout [-bhv]");
 	exit(0);
 }
 
@@ -152,9 +142,9 @@ main(int argc, char **argv)
 	struct i3_window_event *ev;
 
 	if (++argv, --argc > 0) {
-		if (match_opt(*argv, "-b", "--background")) daemonize();
-		else if (match_opt(*argv, "-h", "--help")) usage();
-		else if (match_opt(*argv, "-v", "--version")) version();
+		if (!strcmp(*argv, "-b")) daemonize();
+		else if (!strcmp(*argv, "-h")) usage();
+		else if (!strcmp(*argv, "-v")) version();
 		else if (**argv == '-') dief("invalid option %s", *argv);
 		else dief("unexpected argument: %s", *argv);
 	}
