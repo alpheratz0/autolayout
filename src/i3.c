@@ -219,8 +219,7 @@ i3_get_incoming_message_header(i3_connection conn)
 
 		/* found EOF before end */
 		if (read_count == 0) {
-			dief("data truncated, expected: %zu, received: %zu", left_to_read +
-					total_read_count, total_read_count);
+			die("server closed the connection unexpectedly");
 		}
 
 		total_read_count += read_count;
@@ -267,8 +266,7 @@ i3_get_incoming_message(i3_connection conn, int32_t type)
 
 		/* found EOF before end */
 		if (read_count == 0) {
-			dief("data truncated, expected: %zu, received: %zu", left_to_read +
-					total_read_count, total_read_count);
+			die("server closed the connection unexpectedly");
 		}
 
 		total_read_count += read_count;
