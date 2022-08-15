@@ -293,7 +293,7 @@ i3_run_command(i3_connection conn, const char *cmd)
 	reply = json_object_array_get_idx(root, 0);
 	json_object_object_get_ex(reply, "success", &success);
 
-	if (!(json_object_get_boolean(success))) {
+	if (!json_object_get_boolean(success)) {
 		dief("failed to run command: %s", cmd);
 	}
 
@@ -314,7 +314,7 @@ i3_subscribe_to_window_events(i3_connection conn)
 
 	json_object_object_get_ex(reply, "success", &success);
 
-	if (!(json_object_get_boolean(success))) {
+	if (!json_object_get_boolean(success)) {
 		die("failed to subscribe to window events");
 	}
 
