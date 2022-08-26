@@ -41,7 +41,7 @@ i3_run_command(i3_connection conn, const char *cmd);
 extern void
 i3_subscribe_to_window_events(i3_connection conn);
 
-extern struct i3_window_event *
-i3_wait_for_window_event(i3_connection conn);
+extern void
+i3_wait_for_window_event(i3_connection conn, struct i3_window_event *ev);
 
 #endif

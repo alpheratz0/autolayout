@@ -331,8 +331,8 @@ i3_wev_from_str(const char *str)
 	return 0;
 }
 
-extern struct i3_window_event *
-i3_wait_for_window_event(i3_connection conn)
+extern void
+i3_wait_for_window_event(i3_connection conn, struct i3_window_event *ev)
 {
 
 	/*
@@ -350,7 +350,6 @@ i3_wait_for_window_event(i3_connection conn)
 
 	uint8_t *raw_event;
 	struct json_object *root, *change, *container, *window_rect, *width, *height;
-	struct i3_window_event *ev;
 
 	/* parse the full event json */
 	raw_event = i3_get_incoming_message(conn, I3_MSG_TYPE_WINDOW_EVENT);
@@ -364,13 +363,9 @@ i3_wait_for_window_event(i3_connection conn)
 	json_object_object_get_ex(window_rect, "width", &width);
 	json_object_object_get_ex(window_rect, "height", &height);
 
-	ev = xmalloc(sizeof(struct i3_window_event));
-
 	ev->change = i3_wev_from_str(json_object_get_string(change));
 	ev->width = json_object_get_int(width);
 	ev->height = json_object_get_int(height);
 
 	json_object_put(root);
-
-	return ev;
 }

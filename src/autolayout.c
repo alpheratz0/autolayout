@@ -133,7 +133,7 @@ main(int argc, char **argv)
 	i3_connection ccmd, cevt;
 
 	/* this will hold the neccessary information about a window event */
-	struct i3_window_event *ev;
+	struct i3_window_event ev;
 
 	if (++argv, --argc > 0) {
 		if (!strcmp(*argv, "-b")) daemonize();
@@ -148,17 +148,19 @@ main(int argc, char **argv)
 
 	i3_subscribe_to_window_events(cevt);
 
-	while ((ev = i3_wait_for_window_event(cevt))) {
-		if (ev->change & (I3_WEVCH_FOCUS | I3_WEVCH_NEW | I3_WEVCH_MOVE)) {
+	while (1) {
+		i3_wait_for_window_event(cevt, &ev);
+
+		if (ev.change & (I3_WEVCH_FOCUS | I3_WEVCH_NEW | I3_WEVCH_MOVE)) {
 			i3_run_command(
 				ccmd,
-				ev->width > ev->height ?
+				ev.width > ev.height ?
 					"split h" :
 					"split v"
 			);
 		}
-		free(ev);
 	}
 
+	/* UNREACHABLE */
 	return 0;
 }
