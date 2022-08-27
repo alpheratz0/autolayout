@@ -1,15 +1,7 @@
 .POSIX:
 .PHONY: all clean install uninstall dist
 
-VERSION = 0.1.0
-
-CC      = cc
-CFLAGS  = -std=c99 -pedantic -Wall -Wextra -Os -DVERSION=\"$(VERSION)\"
-LDLIBS  = -ljson-c
-LDFLAGS = -s
-
-PREFIX    = /usr/local
-MANPREFIX = $(PREFIX)/share/man
+include config.mk
 
 SRC = src/autolayout.c src/i3.c src/debug.c
 OBJ = src/autolayout.o src/i3.o src/debug.o
@@ -32,7 +24,7 @@ install: all
 
 dist: clean
 	mkdir -p autolayout-$(VERSION)
-	cp -R COPYING Makefile README src man autolayout-$(VERSION)
+	cp -R COPYING config.mk Makefile README src man autolayout-$(VERSION)
 	tar -cf autolayout-$(VERSION).tar autolayout-$(VERSION)
 	gzip autolayout-$(VERSION).tar
 	rm -rf autolayout-$(VERSION)
