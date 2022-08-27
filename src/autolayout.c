@@ -69,59 +69,26 @@ version(void)
 }
 
 static void
+fork_keep_child(void)
+{
+	switch (fork()) {
+		case 0: break;
+		case -1: dief("fork failed: %s", strerror(errno)); break;
+		default: exit(0); break;
+	}
+}
+
+static void
 daemonize(void)
 {
-	int dnfd, s;
-	sigset_t ss;
-	struct rlimit limits = { 0 };
-
-	getrlimit(RLIMIT_NOFILE, &limits);
-
-	while (--limits.rlim_max > STDERR_FILENO) {
-		close((int)(limits.rlim_max));
-	}
-
-	for (s = 1; s < _NSIG; ++s) {
-		signal(s, SIG_DFL);
-	}
-
-	sigemptyset(&ss);
-	sigprocmask(SIG_SETMASK, &ss, NULL);
-
-	switch (fork()) {
-		case -1:
-			dief("fork failed: %s", strerror(errno));
-			break;
-		case 0:
-			if (setsid() < 0) {
-				dief("setsid failed: %s", strerror(errno));
-			}
-			break;
-		default:
-			exit(0);
-			break;
-	}
-
-	switch (fork()) {
-		case -1:
-			dief("fork failed: %s", strerror(errno));
-			break;
-		case 0:
-			umask(0);
-			chdir("/");
-
-			if ((dnfd = open("/dev/null", O_RDWR)) < 0) {
-				dief("open failed: %s", strerror(errno));
-			}
-
-			dup2(dnfd, STDIN_FILENO);
-			dup2(dnfd, STDOUT_FILENO);
-			dup2(dnfd, STDERR_FILENO);
-			break;
-		default:
-			exit(0);
-			break;
-	}
+	fork_keep_child();
+	setsid();
+	fork_keep_child();
+	umask(0);
+	chdir("/");
+	freopen("/dev/null", "r", stdin);
+	freopen("/dev/null", "w", stdout);
+	freopen("/dev/null", "w", stderr);
 }
 
 int
