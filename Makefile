@@ -32,7 +32,7 @@ install: all
 
 dist: clean
 	mkdir -p autolayout-$(VERSION)
-	cp -R LICENSE Makefile README src man autolayout-$(VERSION)
+	cp -R COPYING Makefile README src man autolayout-$(VERSION)
 	tar -cf autolayout-$(VERSION).tar autolayout-$(VERSION)
 	gzip autolayout-$(VERSION).tar
 	rm -rf autolayout-$(VERSION)
