@@ -61,9 +61,8 @@ xmalloc(size_t size)
 {
 	void *p;
 
-	if (NULL == (p = malloc(size))) {
+	if (NULL == (p = malloc(size)))
 		die("error while calling malloc, no memory available");
-	}
 
 	return p;
 }
@@ -79,29 +78,22 @@ i3_get_socket_path(void)
 	size_t left_to_read;
 	size_t total_read_count;
 
-	if (pipe(fd) < 0) {
+	if (pipe(fd) < 0)
 		dief("pipe failed: %s", strerror(errno));
-	}
 
-	if ((pid = fork()) < 0) {
+	if ((pid = fork()) < 0)
 		dief("fork failed: %s", strerror(errno));
-	}
 
 	if (pid == 0) {
-		if (close(fd[0]) < 0) {
+		if (close(fd[0]) < 0)
 			dief("close failed: %s", strerror(errno));
-		}
-
 		dup2(fd[1], STDOUT_FILENO);
-
-		if (execlp("i3", "i3", "--get-socketpath", (char *)(NULL)) < 0) {
+		if (execlp("i3", "i3", "--get-socketpath", (char *)(NULL)) < 0)
 			exit(127);
-		}
 	}
 
-	if (close(fd[1]) < 0) {
+	if (close(fd[1]) < 0)
 		dief("close failed: %s", strerror(errno));
-	}
 
 	read_count = -1;
 	total_read_count = 0;
@@ -109,30 +101,25 @@ i3_get_socket_path(void)
 	path = xmalloc(SUN_MAX_PATH_LENGTH);
 
 	while (read_count != 0) {
-		if ((read_count = read(fd[0], path + total_read_count, left_to_read)) < 0) {
+		if ((read_count = read(fd[0], path + total_read_count, left_to_read)) < 0)
 			dief("read failed: %s", strerror(errno));
-		}
-
 		total_read_count += read_count;
 		left_to_read -= read_count;
 	}
 
-	if (total_read_count > 0) {
+	if (total_read_count > 0)
 		path[total_read_count-1] = '\0';
-	}
 
 	memset(&siginfo, 0, sizeof(siginfo));
 
-	if (waitid(P_PID, pid, &siginfo, WEXITED) < 0) {
+	if (waitid(P_PID, pid, &siginfo, WEXITED) < 0)
 		dief("waitid failed: %s", strerror(errno));
-	}
 
 	switch (siginfo.si_code) {
 		case CLD_EXITED:
-			if (siginfo.si_status != 0) {
+			if (siginfo.si_status != 0)
 				dief("i3 --get-socketpath failed with exit code: %d",
 						siginfo.si_status);
-			}
 			break;
 		case CLD_KILLED:
 		case CLD_DUMPED:
@@ -158,10 +145,8 @@ i3_connect(void)
 	sock_addr.sun_family = AF_UNIX;
 	memcpy(&sock_addr.sun_path, sock_path, strlen(sock_path));
 
-	if (connect(conn, (struct sockaddr *)(&sock_addr), sizeof(sock_addr)) < 0) {
-		free(sock_path);
+	if (connect(conn, (struct sockaddr *)(&sock_addr), sizeof(sock_addr)) < 0)
 		dief("failed to connect to unix socket: %s", strerror(errno));
-	}
 
 	free(sock_path);
 
@@ -191,9 +176,8 @@ i3_send(i3_connection conn, int32_t type, const char *payload)
 
 	memcpy(message + position, payload, payload_length);
 
-	if (write(conn, message, message_length) < 0) {
+	if (write(conn, message, message_length) < 0)
 		dief("write failed: %s", strerror(errno));
-	}
 
 	free(message);
 }
@@ -213,15 +197,12 @@ i3_get_incoming_message_header(i3_connection conn)
 	hdr = xmalloc(sizeof(struct i3_incoming_message_header));
 
 	while (left_to_read > 0) {
-		if ((read_count = read(conn, &buff[total_read_count], left_to_read)) < 0) {
+		if ((read_count = read(conn, &buff[total_read_count], left_to_read)) < 0)
 			dief("error while reading from socket: %s", strerror(errno));
-		}
 
 		/* found EOF before end */
-		if (read_count == 0) {
+		if (read_count == 0)
 			die("server closed the connection unexpectedly");
-		}
-
 		total_read_count += read_count;
 		left_to_read -= read_count;
 	}
@@ -244,14 +225,12 @@ i3_get_incoming_message(i3_connection conn, int32_t type)
 
 	hdr = i3_get_incoming_message_header(conn);
 
-	if (strncmp(hdr->magic, I3_HDR_MAGIC, I3_HDR_MAGIC_LENGTH) != 0) {
+	if (strncmp(hdr->magic, I3_HDR_MAGIC, I3_HDR_MAGIC_LENGTH) != 0)
 		die("corrupted i3 message");
-	}
 
-	if (hdr->type != type) {
+	if (hdr->type != type)
 		dief("invalid message type, expected: %d, received: %d", type,
 				hdr->type);
-	}
 
 	total_read_count = 0;
 	left_to_read = hdr->size;
@@ -260,15 +239,12 @@ i3_get_incoming_message(i3_connection conn, int32_t type)
 	free(hdr);
 
 	while (left_to_read > 0) {
-		if ((read_count = read(conn, message + total_read_count, left_to_read)) < 0) {
+		if ((read_count = read(conn, message + total_read_count, left_to_read)) < 0)
 			dief("error while reading from socket: %s", strerror(errno));
-		}
 
 		/* found EOF before end */
-		if (read_count == 0) {
+		if (read_count == 0)
 			die("server closed the connection unexpectedly");
-		}
-
 		total_read_count += read_count;
 		left_to_read -= read_count;
 	}
@@ -293,9 +269,8 @@ i3_run_command(i3_connection conn, const char *cmd)
 	reply = json_object_array_get_idx(root, 0);
 	json_object_object_get_ex(reply, "success", &success);
 
-	if (!json_object_get_boolean(success)) {
+	if (!json_object_get_boolean(success))
 		dief("failed to run command: %s", cmd);
-	}
 
 	json_object_put(root);
 }
@@ -314,9 +289,8 @@ i3_subscribe_to_window_events(i3_connection conn)
 
 	json_object_object_get_ex(reply, "success", &success);
 
-	if (!json_object_get_boolean(success)) {
+	if (!json_object_get_boolean(success))
 		die("failed to subscribe to window events");
-	}
 
 	json_object_put(reply);
 }
