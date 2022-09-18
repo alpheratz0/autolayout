@@ -1,14 +1,9 @@
-]|~ autolayout ~|[
+autolayout automatically changes the layout of i3 based
+on the width and height of the focused window.
+For more information about it's usage check `man autolayout`.
 
-Automatically change the layout of i3 based on the width and
-height of the focused window.
-
-]|~ build ~|[
-
-In order to build autolayout you will need json-c headers.
-$ make
-
-]|~ license ~|[
+This program requires libjson-c to be installed.
+In order to build this program you need to run `make`.
 
 This program is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License
