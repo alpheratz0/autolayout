@@ -98,12 +98,17 @@ main(int argc, char **argv)
 	/* this will hold the neccessary information about a window event */
 	struct i3_window_event ev;
 
-	if (++argv, --argc > 0) {
-		if (!strcmp(*argv, "-b")) daemonize();
-		else if (!strcmp(*argv, "-h")) usage();
-		else if (!strcmp(*argv, "-v")) version();
-		else if (**argv == '-') die("invalid option %s", *argv);
-		else die("unexpected argument: %s", *argv);
+	while (++argv, --argc > 0) {
+		if ((*argv)[0] == '-' && (*argv)[1] != '\0' && (*argv)[2] == '\0') {
+			switch ((*argv)[1]) {
+				case 'h': usage(); break;
+				case 'v': version(); break;
+				case 'b': daemonize(); break;
+				default: die("invalid option %s", *argv); break;
+			}
+		} else {
+			die("unexpected argument: %s", *argv);
+		}
 	}
 
 	ccmd = i3_connect();
