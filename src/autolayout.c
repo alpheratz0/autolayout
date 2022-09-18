@@ -69,7 +69,7 @@ fork_keep_child(void)
 {
 	switch (fork()) {
 		case 0: break;
-		case -1: dief("fork failed: %s", strerror(errno)); break;
+		case -1: die("fork failed: %s", strerror(errno)); break;
 		default: exit(0); break;
 	}
 }
@@ -102,8 +102,8 @@ main(int argc, char **argv)
 		if (!strcmp(*argv, "-b")) daemonize();
 		else if (!strcmp(*argv, "-h")) usage();
 		else if (!strcmp(*argv, "-v")) version();
-		else if (**argv == '-') dief("invalid option %s", *argv);
-		else dief("unexpected argument: %s", *argv);
+		else if (**argv == '-') die("invalid option %s", *argv);
+		else die("unexpected argument: %s", *argv);
 	}
 
 	ccmd = i3_connect();

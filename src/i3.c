@@ -79,21 +79,21 @@ i3_get_socket_path(void)
 	size_t total_read_count;
 
 	if (pipe(fd) < 0)
-		dief("pipe failed: %s", strerror(errno));
+		die("pipe failed: %s", strerror(errno));
 
 	if ((pid = fork()) < 0)
-		dief("fork failed: %s", strerror(errno));
+		die("fork failed: %s", strerror(errno));
 
 	if (pid == 0) {
 		if (close(fd[0]) < 0)
-			dief("close failed: %s", strerror(errno));
+			die("close failed: %s", strerror(errno));
 		dup2(fd[1], STDOUT_FILENO);
 		if (execlp("i3", "i3", "--get-socketpath", (char *)(NULL)) < 0)
 			exit(127);
 	}
 
 	if (close(fd[1]) < 0)
-		dief("close failed: %s", strerror(errno));
+		die("close failed: %s", strerror(errno));
 
 	read_count = -1;
 	total_read_count = 0;
@@ -102,7 +102,7 @@ i3_get_socket_path(void)
 
 	while (read_count != 0) {
 		if ((read_count = read(fd[0], path + total_read_count, left_to_read)) < 0)
-			dief("read failed: %s", strerror(errno));
+			die("read failed: %s", strerror(errno));
 		total_read_count += read_count;
 		left_to_read -= read_count;
 	}
@@ -113,12 +113,12 @@ i3_get_socket_path(void)
 	memset(&siginfo, 0, sizeof(siginfo));
 
 	if (waitid(P_PID, pid, &siginfo, WEXITED) < 0)
-		dief("waitid failed: %s", strerror(errno));
+		die("waitid failed: %s", strerror(errno));
 
 	switch (siginfo.si_code) {
 		case CLD_EXITED:
 			if (siginfo.si_status != 0)
-				dief("i3 --get-socketpath failed with exit code: %d",
+				die("i3 --get-socketpath failed with exit code: %d",
 						siginfo.si_status);
 			break;
 		case CLD_KILLED:
@@ -146,7 +146,7 @@ i3_connect(void)
 	memcpy(&sock_addr.sun_path, sock_path, strlen(sock_path));
 
 	if (connect(conn, (struct sockaddr *)(&sock_addr), sizeof(sock_addr)) < 0)
-		dief("failed to connect to unix socket: %s", strerror(errno));
+		die("failed to connect to unix socket: %s", strerror(errno));
 
 	free(sock_path);
 
@@ -177,7 +177,7 @@ i3_send(i3_connection conn, int32_t type, const char *payload)
 	memcpy(message + position, payload, payload_length);
 
 	if (write(conn, message, message_length) < 0)
-		dief("write failed: %s", strerror(errno));
+		die("write failed: %s", strerror(errno));
 
 	free(message);
 }
@@ -198,7 +198,7 @@ i3_get_incoming_message_header(i3_connection conn)
 
 	while (left_to_read > 0) {
 		if ((read_count = read(conn, &buff[total_read_count], left_to_read)) < 0)
-			dief("error while reading from socket: %s", strerror(errno));
+			die("error while reading from socket: %s", strerror(errno));
 
 		/* found EOF before end */
 		if (read_count == 0)
@@ -229,7 +229,7 @@ i3_get_incoming_message(i3_connection conn, int32_t type)
 		die("corrupted i3 message");
 
 	if (hdr->type != type)
-		dief("invalid message type, expected: %d, received: %d", type,
+		die("invalid message type, expected: %d, received: %d", type,
 				hdr->type);
 
 	total_read_count = 0;
@@ -240,7 +240,7 @@ i3_get_incoming_message(i3_connection conn, int32_t type)
 
 	while (left_to_read > 0) {
 		if ((read_count = read(conn, message + total_read_count, left_to_read)) < 0)
-			dief("error while reading from socket: %s", strerror(errno));
+			die("error while reading from socket: %s", strerror(errno));
 
 		/* found EOF before end */
 		if (read_count == 0)
@@ -270,7 +270,7 @@ i3_run_command(i3_connection conn, const char *cmd)
 	json_object_object_get_ex(reply, "success", &success);
 
 	if (!json_object_get_boolean(success))
-		dief("failed to run command: %s", cmd);
+		die("failed to run command: %s", cmd);
 
 	json_object_put(root);
 }

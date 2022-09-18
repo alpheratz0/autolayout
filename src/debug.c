@@ -22,14 +22,7 @@
 #include "debug.h"
 
 extern void
-die(const char *err)
-{
-	fprintf(stderr, "autolayout: %s\n", err);
-	exit(1);
-}
-
-extern void
-dief(const char *fmt, ...)
+die(const char *fmt, ...)
 {
 	va_list args;
 
