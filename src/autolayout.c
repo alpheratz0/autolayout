@@ -95,7 +95,6 @@ main(int argc, char **argv)
 	/* https://i3wm.org/docs/ipc.html#events */
 	i3_connection ccmd, cevt;
 
-	/* this will hold the neccessary information about a window event */
 	struct i3_window_event ev;
 
 	while (++argv, --argc > 0) {
