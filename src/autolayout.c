@@ -115,7 +115,7 @@ main(int argc, char **argv)
 
 	i3_subscribe_to_window_events(cevt);
 
-	while (1) {
+	for (;;) {
 		i3_wait_for_window_event(cevt, &ev);
 
 		if (ev.change & (I3_WEVCH_FOCUS | I3_WEVCH_NEW | I3_WEVCH_MOVE)) {
