@@ -92,7 +92,7 @@ main(int argc, char **argv)
 {
 	/* create two different connections (to prevent race conditions), */
 	/* one for the commands and other for the events */
-	/* https://i3wm.org/docs/ipc.html#events */
+	/* see: https://i3wm.org/docs/ipc.html#events */
 	i3_connection ccmd, cevt;
 
 	struct i3_window_event ev;
