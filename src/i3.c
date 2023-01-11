@@ -107,9 +107,10 @@ i3_get_socket_path(void)
 		left_to_read -= read_count;
 	}
 
-	if (total_read_count > 0)
-		path[total_read_count-1] = '\0';
+	if (total_read_count == 0)
+		die("i3 --get-socketpath failed");
 
+	path[total_read_count-1] = '\0';
 	memset(&siginfo, 0, sizeof(siginfo));
 
 	if (waitid(P_PID, pid, &siginfo, WEXITED) < 0)
