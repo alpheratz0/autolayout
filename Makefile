@@ -12,7 +12,7 @@ autolayout: $(OBJ)
 	$(CC) $(LDFLAGS) -o autolayout $(OBJ) $(LDLIBS)
 
 clean:
-	rm -f autolayout autolayout.o autolayout-$(VERSION).tar.gz $(OBJ)
+	rm -f autolayout autolayout-$(VERSION).tar.gz $(OBJ)
 
 install: all
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
