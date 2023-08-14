@@ -302,9 +302,9 @@ i3_subscribe_to_window_events(i3_connection conn)
 static enum i3_window_event_change
 i3_wevch_from_str(const char *str)
 {
-	if (strcmp(str, "new") == 0) 	return I3_WEVCH_NEW;
-	if (strcmp(str, "focus") == 0) 	return I3_WEVCH_FOCUS;
-	if (strcmp(str, "move") == 0) 	return I3_WEVCH_MOVE;
+	if (strcmp(str, "new") == 0)    return I3_WEVCH_NEW;
+	if (strcmp(str, "focus") == 0)  return I3_WEVCH_FOCUS;
+	if (strcmp(str, "move") == 0)   return I3_WEVCH_MOVE;
 
 	return I3_WEVCH_UNKNOWN;
 }
