@@ -1,17 +1,18 @@
 /*
 	Copyright (C) 2022-2023 <alpheratz99@protonmail.com>
 
-	This program is free software; you can redistribute it and/or modify it under
-	the terms of the GNU General Public License version 2 as published by the
-	Free Software Foundation.
+	This program is free software; you can redistribute it and/or modify it
+	under the terms of the GNU General Public License version 2 as published by
+	the Free Software Foundation.
 
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY
-	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-	FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful, but WITHOUT
+	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+	FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+	more details.
 
-	You should have received a copy of the GNU General Public License along with
-	this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-	Place, Suite 330, Boston, MA 02111-1307 USA
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc., 59
+	Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 	 _____________________________
 	( auto layout > manual layout )
@@ -68,9 +69,9 @@ static void
 fork_keep_child(void)
 {
 	switch (fork()) {
-		case 0: break;
-		case -1: die("fork failed: %s", strerror(errno)); break;
-		default: exit(0); break;
+	case 0: break;
+	case -1: die("fork failed: %s", strerror(errno)); break;
+	default: exit(0); break;
 	}
 }
 
@@ -100,10 +101,10 @@ main(int argc, char **argv)
 	while (++argv, --argc > 0) {
 		if ((*argv)[0] == '-' && (*argv)[1] != '\0' && (*argv)[2] == '\0') {
 			switch ((*argv)[1]) {
-				case 'h': usage(); break;
-				case 'v': version(); break;
-				case 'b': daemonize(); break;
-				default: die("invalid option %s", *argv); break;
+			case 'h': usage(); break;
+			case 'v': version(); break;
+			case 'b': daemonize(); break;
+			default: die("invalid option %s", *argv); break;
 			}
 		} else {
 			die("unexpected argument: %s", *argv);

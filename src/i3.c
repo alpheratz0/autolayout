@@ -1,17 +1,18 @@
 /*
 	Copyright (C) 2022-2023 <alpheratz99@protonmail.com>
 
-	This program is free software; you can redistribute it and/or modify it under
-	the terms of the GNU General Public License version 2 as published by the
-	Free Software Foundation.
+	This program is free software; you can redistribute it and/or modify it
+	under the terms of the GNU General Public License version 2 as published by
+	the Free Software Foundation.
 
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY
-	WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-	FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful, but WITHOUT
+	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+	FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+	more details.
 
-	You should have received a copy of the GNU General Public License along with
-	this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-	Place, Suite 330, Boston, MA 02111-1307 USA
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc., 59
+	Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 */
 
@@ -117,15 +118,15 @@ i3_get_socket_path(void)
 		die("waitid failed: %s", strerror(errno));
 
 	switch (siginfo.si_code) {
-		case CLD_EXITED:
-			if (siginfo.si_status != 0)
-				die("i3 --get-socketpath failed with exit code: %d",
-						siginfo.si_status);
-			break;
-		case CLD_KILLED:
-		case CLD_DUMPED:
-			die("i3 --get-socketpath failed");
-			break;
+	case CLD_EXITED:
+		if (siginfo.si_status != 0)
+			die("i3 --get-socketpath failed with exit code: %d",
+					siginfo.si_status);
+		break;
+	case CLD_KILLED:
+	case CLD_DUMPED:
+		die("i3 --get-socketpath failed");
+		break;
 	}
 
 	return path;
