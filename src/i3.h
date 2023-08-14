@@ -21,18 +21,21 @@
 
 #include <stdint.h>
 
-enum {
-	I3_WEVCH_NEW   = 1 << 0,
-	I3_WEVCH_FOCUS = 1 << 1,
-	I3_WEVCH_MOVE  = 1 << 2
-};
-
 typedef int i3_connection;
 
+enum i3_window_event_change {
+	I3_WEVCH_UNKNOWN =      0,
+	I3_WEVCH_NEW     = 1 << 0,
+	I3_WEVCH_FOCUS   = 1 << 1,
+	I3_WEVCH_MOVE    = 1 << 2
+};
+
 struct i3_window_event {
-	int32_t change;
-	int32_t width;
-	int32_t height;
+	enum i3_window_event_change change;
+	struct {
+		int32_t w;
+		int32_t h;
+	} size;
 };
 
 extern i3_connection

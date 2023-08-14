@@ -100,7 +100,7 @@ main(int argc, char **argv)
 	/* see: https://i3wm.org/docs/ipc.html#events */
 	i3_connection ccmd, cevt;
 
-	struct i3_window_event ev;
+	struct i3_window_event win_ev;
 
 	while (++argv, --argc > 0) {
 		if ((*argv)[0] == '-' && (*argv)[1] != '\0' && (*argv)[2] == '\0') {
@@ -121,12 +121,12 @@ main(int argc, char **argv)
 	i3_subscribe_to_window_events(cevt);
 
 	for (;;) {
-		i3_wait_for_window_event(cevt, &ev);
+		i3_wait_for_window_event(cevt, &win_ev);
 
-		if (ev.change & (I3_WEVCH_FOCUS | I3_WEVCH_NEW | I3_WEVCH_MOVE)) {
+		if (win_ev.change & (I3_WEVCH_FOCUS | I3_WEVCH_NEW | I3_WEVCH_MOVE)) {
 			i3_run_command(
 				ccmd,
-				ev.width > ev.height ?
+				win_ev.size.w > win_ev.size.h ?
 					"split h" :
 					"split v"
 			);
