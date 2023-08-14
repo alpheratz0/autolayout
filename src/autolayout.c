@@ -68,11 +68,15 @@ version(void)
 static void
 fork_keep_child(void)
 {
-	switch (fork()) {
-	case 0: break;
-	case -1: die("fork failed: %s", strerror(errno)); break;
-	default: exit(0); break;
-	}
+	pid_t pid;
+
+	pid = fork();
+
+	if (pid == -1)
+		die("fork failed: %s", strerror(errno));
+
+	if (pid != 0)
+		exit(0);
 }
 
 static void
