@@ -9,7 +9,7 @@ OBJ = src/autolayout.o src/i3.o src/debug.o
 all: autolayout
 
 autolayout: $(OBJ)
-	$(CC) $(LDFLAGS) -o autolayout $(OBJ) $(LDLIBS)
+	$(CC) $(LDFLAGS) -o autolayout $(OBJ)
 
 clean:
 	rm -f autolayout autolayout-$(VERSION).tar.gz $(OBJ)
